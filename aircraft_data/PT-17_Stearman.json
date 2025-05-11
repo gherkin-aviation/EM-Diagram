@@ -1,0 +1,131 @@
+{
+    "seats": 2,
+    "empty_weight": 1935,
+    "wing_area": 296.0,
+    "Vne": 157,
+    "Vfe": {
+        "takeoff": 87,
+        "landing": 78
+    },
+    "stall_speeds": {
+        "clean": {
+            "weights": [
+                2000,
+                2300,
+                2600
+            ],
+            "speeds": [
+                45,
+                48,
+                50
+            ]
+        },
+        "takeoff": {
+            "weights": [
+                2000,
+                2300,
+                2600
+            ],
+            "speeds": [
+                43,
+                45,
+                48
+            ]
+        },
+        "landing": {
+            "weights": [
+                2000,
+                2300,
+                2600
+            ],
+            "speeds": [
+                40,
+                43,
+                45
+            ]
+        }
+    },
+    "CL_max": {
+        "clean": 1.6,
+        "takeoff": 1.8,
+        "landing": 2.0
+    },
+    "G_limits": {
+        "normal": {
+            "clean": 4.4,
+            "takeoff": 2.0,
+            "landing": 2.0
+        },
+        "utility": {
+            "clean": 6.0,
+            "takeoff": 2.0,
+            "landing": 2.0
+        },
+        "aerobatic": {
+            "clean": 6.0,
+            "takeoff": 0.0,
+            "landing": 0.0
+        }
+    },
+    "engine_options": {
+        "Continental R-670": {
+            "horsepower": 220,
+            "prop_efficiency": 0.78
+        }
+    },
+    "fuel_capacity_gal": 46,
+    "fuel_weight_per_gal": 6.0,
+    "cg_range": [
+        26.01,
+        32.01
+    ],
+    "configuration_options": {
+        "flaps": [
+            "clean"
+        ],
+        "gear": [
+            "tailwheel"
+        ],
+        "speed_brakes": [
+            "none"
+        ],
+        "cowl_flaps": [
+            "none"
+        ]
+    },
+    "max_weight": 2600,
+    "aspect_ratio": 5.0,
+    "CD0": 0.042,
+    "e": 0.75,
+    "Vno": 122,
+    "cg_effect_factor": {
+        "min_cg": 1.03,
+        "max_cg": 0.97
+    },
+    "power_curve": {
+        "sea_level_max": 220,
+        "max_altitude": 13000,
+        "derate_per_1000ft": 0.03
+    },
+    "airspeed_arcs": {
+        "white_arc": [
+            45,
+            78
+        ],
+        "green_arc": [
+            48,
+            122
+        ],
+        "yellow_arc": [
+            122,
+            157
+        ]
+    },
+    "single_engine_limits": {
+        "Vmca": null,
+        "Vyse": null,
+        "Vxse": null
+    },
+    "engine_count": 1,
+    "service_ceiling_ft": 13000
+}

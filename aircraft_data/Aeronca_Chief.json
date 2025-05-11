@@ -1,0 +1,96 @@
+{
+  "seats": 2,
+  "empty_weight": 750,
+  "wing_area": 170,
+  "Vne": 122,
+  "Vfe": {
+    "takeoff": 78,
+    "landing": 74
+  },
+  "stall_speeds": {
+    "clean": {
+      "weights": [750, 1100, 1220],
+      "speeds": [33, 36, 39]
+    },
+    "takeoff": {
+      "weights": [750, 1100, 1220],
+      "speeds": [32, 36, 38]
+    },
+    "landing": {
+      "weights": [750, 1100, 1220],
+      "speeds": [30, 35, 37]
+    }
+  },
+  "CL_max": {
+    "clean": 1.4,
+    "takeoff": 1.6,
+    "landing": 1.8
+  },
+  "G_limits": {
+    "normal": {
+      "clean": 3.8,
+      "takeoff": 2.0,
+      "landing": 2.0
+    },
+    "utility": {
+      "clean": 4.4,
+      "takeoff": 2.0,
+      "landing": 2.0
+    },
+    "aerobatic": {
+      "clean": 6.0,
+      "takeoff": 0.0,
+      "landing": 0.0
+    }
+  },
+  "engine_options": {
+    "Continental A-65": {
+      "horsepower": 65,
+      "prop_efficiency": 0.75,
+      "power_curve": {
+        "sea_level_max": 65,
+        "max_altitude": 10000,
+        "derate_per_1000ft": 0.03
+      }
+    }
+  },
+  "fuel_capacity_gal": 13,
+  "fuel_weight_per_gal": 6.0,
+  "cg_range": [14.01, 20.01],
+  "configuration_options": {
+    "flaps": ["clean", "takeoff", "landing"],
+    "gear": ["fixed"],
+    "speed_brakes": ["none"],
+    "cowl_flaps": ["none"]
+  },
+  "max_weight": 1220,
+  "aspect_ratio": 6.8,
+  "CD0": 0.03,
+  "e": 0.75,
+  "Vno": 91,
+  "cg_effect_factor": {
+    "min_cg": 1.03,
+    "max_cg": 0.97
+  },
+  "airspeed_arcs": {
+    "white_arc": [30, 74],
+    "green_arc": [33, 91],
+    "yellow_arc": [91, 122]
+  },
+  "single_engine_limits": {
+    "Vmca": null,
+    "Vyse": null,
+    "Vxse": null
+  },
+  "prop_condition_options": ["windmilling", "stationary"],
+  "prop_condition_effects": {
+    "windmilling": {
+      "drag_factor": 1.15
+    },
+    "stationary": {
+      "drag_factor": 1.05
+    }
+  },
+  "engine_count": 1,
+  "service_ceiling_ft": 12000
+}

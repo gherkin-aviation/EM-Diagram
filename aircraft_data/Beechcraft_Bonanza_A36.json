@@ -1,0 +1,87 @@
+{
+  "seats": 6,
+  "empty_weight": 2350,
+  "max_weight": 3650,
+  "wing_area": 181.0,
+  "aspect_ratio": 7.0,
+  "CD0": 0.027,
+  "e": 0.8,
+  "engine_count": 1,
+  "engine_options": {
+    "Continental IO-550-B": {
+      "horsepower": 300,
+      "prop_efficiency": 0.82
+    }
+  },
+  "power_curve": {
+    "sea_level_max": 300,
+    "max_altitude": 20000,
+    "derate_per_1000ft": 0.03
+  },
+  "fuel_capacity_gal": 74,
+  "fuel_weight_per_gal": 6.0,
+  "cg_range": [81.01, 87.7],
+  "cg_effect_factor": {
+    "min_cg": 1.03,
+    "max_cg": 0.98
+  },
+  "CL_max": {
+    "clean": 1.5,
+    "takeoff": 1.7,
+    "landing": 1.9
+  },
+  "stall_speeds": {
+    "clean": {
+      "weights": [2350, 3000, 3650],
+      "speeds": [62, 67, 73]
+    },
+    "takeoff": {
+      "weights": [2350, 3000, 3650],
+      "speeds": [60, 65, 70]
+    },
+    "landing": {
+      "weights": [2350, 3000, 3650],
+      "speeds": [56, 61, 66]
+    }
+  },
+  "G_limits": {
+    "normal": {
+      "clean": 3.8,
+      "takeoff": 2.0,
+      "landing": 2.0
+    },
+    "utility": {
+      "clean": 4.4,
+      "takeoff": 2.0,
+      "landing": 2.0
+    },
+    "aerobatic": {
+      "clean": 6.0,
+      "takeoff": 0.0,
+      "landing": 0.0
+    }
+  },
+  "Vne": 205,
+  "Vno": 169,
+  "Vfe": {
+    "takeoff": 152,
+    "landing": 122
+  },
+  "airspeed_arcs": {
+    "white_arc": [56, 122],
+    "green_arc": [62, 169],
+    "yellow_arc": [169, 205]
+  },
+  "configuration_options": {
+    "flaps": ["clean", "takeoff", "landing"],
+    "gear": ["retractable"],
+    "speed_brakes": ["none"],
+    "cowl_flaps": ["open", "closed"]
+  },
+  "single_engine_limits": {
+    "Vmca": null,
+    "Vyse": null,
+    "Vxse": null
+  },
+  "service_ceiling_ft": 18300
+}

@@ -1,0 +1,87 @@
+{
+    "seats": 4,
+    "empty_weight": 2165,
+    "max_weight": 3400,
+    "wing_area": 181.0,
+    "aspect_ratio": 7.0,
+    "CD0": 0.027,
+    "e": 0.8,
+    "Vne": 202,
+    "Vno": 165,
+    "Vfe": {
+        "takeoff": 152,
+        "landing": 122
+    },
+    "stall_speeds": {
+        "clean": {
+            "weights": [2165, 2700, 3400],
+            "speeds": [62, 67, 72]
+        },
+        "takeoff": {
+            "weights": [2165, 2700, 3400],
+            "speeds": [59, 64, 69]
+        },
+        "landing": {
+            "weights": [2165, 2700, 3400],
+            "speeds": [55, 60, 65]
+        }
+    },
+    "CL_max": {
+        "clean": 1.5,
+        "takeoff": 1.7,
+        "landing": 1.9
+    },
+    "G_limits": {
+        "normal": {
+            "clean": 3.8,
+            "takeoff": 2.0,
+            "landing": 2.0
+        },
+        "utility": {
+            "clean": 4.4,
+            "takeoff": 2.0,
+            "landing": 2.0
+        },
+        "aerobatic": {
+            "clean": 6.0,
+            "takeoff": 0.0,
+            "landing": 0.0
+        }
+    },
+    "engine_count": 1,
+    "engine_options": {
+        "Continental IO-520-BA": {
+            "horsepower": 285,
+            "prop_efficiency": 0.81
+        }
+    },
+    "fuel_capacity_gal": 74,
+    "fuel_weight_per_gal": 6.0,
+    "cg_range": [79.01, 86.01],
+    "cg_effect_factor": {
+        "min_cg": 1.03,
+        "max_cg": 0.98
+    },
+    "power_curve": {
+        "sea_level_max": 285,
+        "max_altitude": 18000,
+        "derate_per_1000ft": 0.03
+    },
+    "airspeed_arcs": {
+        "white_arc": [55, 122],
+        "green_arc": [62, 165],
+        "yellow_arc": [165, 202]
+    },
+    "single_engine_limits": {
+        "Vmca": null,
+        "Vyse": null,
+        "Vxse": null
+    },
+    "configuration_options": {
+        "flaps": ["clean", "takeoff", "landing"],
+        "gear": ["retractable"],
+        "speed_brakes": ["none"],
+        "cowl_flaps": ["open", "closed"]
+    },
+    "service_ceiling_ft": 18200
+}

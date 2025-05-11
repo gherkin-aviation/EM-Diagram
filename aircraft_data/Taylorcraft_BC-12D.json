@@ -1,0 +1,133 @@
+{
+    "seats": 2,
+    "empty_weight": 740,
+    "wing_area": 145.0,
+    "Vne": 136,
+    "Vfe": {
+        "takeoff": 95,
+        "landing": 80
+    },
+    "stall_speeds": {
+        "clean": {
+            "weights": [
+                740,
+                950,
+                1220
+            ],
+            "speeds": [
+                38,
+                43,
+                47
+            ]
+        },
+        "takeoff": {
+            "weights": [
+                740,
+                950,
+                1220
+            ],
+            "speeds": [
+                36,
+                41,
+                45
+            ]
+        },
+        "landing": {
+            "weights": [
+                740,
+                950,
+                1220
+            ],
+            "speeds": [
+                33,
+                39,
+                43
+            ]
+        }
+    },
+    "CL_max": {
+        "clean": 1.4,
+        "takeoff": 1.6,
+        "landing": 1.8
+    },
+    "G_limits": {
+        "normal": {
+            "clean": 4.4,
+            "takeoff": 2.0,
+            "landing": 2.0
+        },
+        "utility": {
+            "clean": 4.4,
+            "takeoff": 2.0,
+            "landing": 2.0
+        },
+        "aerobatic": {
+            "clean": 6.0,
+            "takeoff": 0.0,
+            "landing": 0.0
+        }
+    },
+    "engine_options": {
+        "Continental A65": {
+            "horsepower": 65,
+            "prop_efficiency": 0.75
+        }
+    },
+    "fuel_capacity_gal": 18,
+    "fuel_weight_per_gal": 6.0,
+    "cg_range": [
+        10.01,
+        15.01
+    ],
+    "configuration_options": {
+        "flaps": [
+            "clean",
+            "takeoff",
+            "landing"
+        ],
+        "gear": [
+            "fixed"
+        ],
+        "speed_brakes": [
+            "none"
+        ],
+        "cowl_flaps": [
+            "none"
+        ]
+    },
+    "max_weight": 1220,
+    "aspect_ratio": 7.5,
+    "CD0": 0.027,
+    "e": 0.8,
+    "Vno": 112,
+    "cg_effect_factor": {
+        "min_cg": 1.03,
+        "max_cg": 0.98
+    },
+    "power_curve": {
+        "sea_level_max": 65,
+        "max_altitude": 12000,
+        "derate_per_1000ft": 0.03
+    },
+    "airspeed_arcs": {
+        "white_arc": [
+            33,
+            80
+        ],
+        "green_arc": [
+            38,
+            112
+        ],
+        "yellow_arc": [
+            112,
+            136
+        ]
+    },
+    "single_engine_limits": {
+        "Vmca": null,
+        "Vyse": null,
+        "Vxse": null
+    },
+    "engine_count": 1,
+    "service_ceiling_ft": 12000
+}

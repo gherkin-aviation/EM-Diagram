@@ -1,0 +1,134 @@
+{
+    "seats": 6,
+    "empty_weight": 1900,
+    "max_weight": 3400,
+    "wing_area": 174.0,
+    "Vne": 177,
+    "Vfe": {
+        "takeoff": 96,
+        "landing": 77
+    },
+    "stall_speeds": {
+        "clean": {
+            "weights": [
+                1900,
+                2600,
+                3100
+            ],
+            "speeds": [
+                50,
+                55,
+                59
+            ]
+        },
+        "takeoff": {
+            "weights": [
+                1900,
+                2600,
+                3100
+            ],
+            "speeds": [
+                46,
+                50,
+                55
+            ]
+        },
+        "landing": {
+            "weights": [
+                1900,
+                2600,
+                3100
+            ],
+            "speeds": [
+                43,
+                46,
+                50
+            ]
+        }
+    },
+    "CL_max": {
+        "clean": 1.45,
+        "takeoff": 1.6,
+        "landing": 1.8
+    },
+    "G_limits": {
+        "normal": {
+            "clean": 3.8,
+            "takeoff": 2.0,
+            "landing": 2.0
+        },
+        "utility": {
+            "clean": 4.4,
+            "takeoff": 2.0,
+            "landing": 2.0
+        },
+        "aerobatic": {
+            "clean": 6.0,
+            "takeoff": 0.0,
+            "landing": 0.0
+        }
+    },
+    "engine_options": {
+        "Lycoming O-540-E4B5": {
+            "horsepower": 260,
+            "prop_efficiency": 0.8
+        }
+    },
+    "fuel_capacity_gal": 84,
+    "fuel_weight_per_gal": 6.0,
+    "cg_range": [
+        85.01,
+        95.5
+    ],
+    "configuration_options": {
+        "flaps": [
+            "clean",
+            "takeoff",
+            "landing"
+        ],
+        "gear": [
+            "fixed"
+        ],
+        "speed_brakes": [
+            "none"
+        ],
+        "cowl_flaps": [
+            "open",
+            "closed"
+        ]
+    },
+    "aspect_ratio": 7.1,
+    "CD0": 0.028,
+    "e": 0.82,
+    "Vno": 139,
+    "cg_effect_factor": {
+        "min_cg": 1.02,
+        "max_cg": 0.96
+    },
+    "power_curve": {
+        "sea_level_max": 260,
+        "max_altitude": 12000,
+        "derate_per_1000ft": 0.03
+    },
+    "airspeed_arcs": {
+        "white_arc": [
+            43,
+            77
+        ],
+        "green_arc": [
+            50,
+            139
+        ],
+        "yellow_arc": [
+            139,
+            177
+        ]
+    },
+    "single_engine_limits": {
+        "Vmca": null,
+        "Vyse": null,
+        "Vxse": null
+    },
+    "engine_count": 1,
+    "service_ceiling_ft": 15500
+}

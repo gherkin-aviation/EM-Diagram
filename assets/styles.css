@@ -1,0 +1,141 @@
+/* General Layout */
+body {
+    font-family: "Segoe UI", sans-serif;
+    background-color: #f8f8f8;
+    margin: 20px;
+}
+
+.section {
+    border: 1px solid #ccc;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 6px;
+    background-color: #ffffff;
+}
+
+.inline-block {
+    display: inline-block;
+    vertical-align: top;
+    margin-right: 20px;
+}
+
+.bold {
+    font-weight: bold;
+    font-size: 1.2em;
+    margin-top: 24px;
+}
+
+/* Title */
+.title {
+    color: #006400; /* Dark green title text */
+    font-weight: bold;
+    font-size: 2.2em;
+}
+
+/* Sliders */
+.dash-slider .rc-slider {
+    background-color: #ffa500 !important; /* Burnt orange slider track */
+}
+
+.dash-slider .rc-slider-track {
+    background-color: #ff8c00 !important;
+}
+
+.dash-slider .rc-slider-handle {
+    border: 2px solid #ff8c00 !important;
+    background-color: #ffffff !important;
+}
+
+/* Green bubble radio/checkbox styling */
+input[type="radio"]:checked + label,
+input[type="checkbox"]:checked + label {
+    background-color: #2e8b57 !important; /* Forest green */
+    color: white !important;
+    border-radius: 4px;
+    padding: 2px 6px;
+}
+
+/* Radio buttons */
+.RadioItems input[type="radio"] {
+    accent-color: #2e8b57;
+}
+
+.Checklist input[type="checkbox"] {
+    accent-color: #2e8b57;
+}
+
+/* Export button */
+#pdf-button {
+    background-color: #2e8b57;
+    color: white;
+    font-weight: bold;
+    border: none;
+    padding: 10px 15px;
+    margin-top: 1px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+#pdf-button:hover {
+    background-color: #206040;
+}
+/* Burnt Orange Styling for Dash Sliders */
+.rc-slider-track {
+    background-color: #cc5500 !important; /* burnt orange track */
+}
+
+.rc-slider-handle {
+    border-color: #cc5500 !important;     /* burnt orange thumb */
+    background-color: #cc5500 !important;
+    box-shadow: none !important;
+}
+
+.rc-slider-rail {
+    background-color: #e0e0e0; /* light gray background for contrast */
+}
+
+.rc-slider:hover .rc-slider-handle {
+    border-color: #b34700 !important;     /* darker on hover */
+    background-color: #b34700 !important;
+}
+/* Burnt Orange Tick Marks */
+.rc-slider-dot-active {
+    border-color: #cc5500 !important;
+    background-color: #cc5500 !important;
+}
+/* Sliders explicit container classes (widths) */
+.fuel-slider {
+    width: 400px;
+}
+
+.cg-slider {
+    width: 250px;
+}
+
+.altitude-slider {
+    width: 350px;
+}
+.footer {
+    text-align: center;
+    font-size: 12px;
+    color: #666;
+    margin-top: 30px;
+    margin-bottom: 10px;
+}
+
+/* Responsive tweaks if needed */
+@media screen and (max-width: 768px) {
+    .section {
+        padding: 10px;
+    }
+
+    .inline-block {
+        display: block;
+        margin-right: 0;
+        margin-bottom: 10px;
+    }
+
+    .fuel-slider, .cg-slider, .altitude-slider {
+        width: 100%;
+    }
+}

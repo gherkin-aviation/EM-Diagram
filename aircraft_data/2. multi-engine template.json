@@ -1,0 +1,160 @@
+{
+  "name": "Template Twin Engine",
+  "type": "multi_engine",
+  "engine_count": 2,
+  "seats": 6,
+  "empty_weight": 2900,
+  "max_weight": 4200,
+  "wing_area": 208,
+  "aspect_ratio": 7.8,
+  "CD0": 0.028,
+  "e": 0.82,
+  "fuel_capacity_gal": 100,
+  "fuel_weight_per_gal": 6.0,
+  "cg_range": [41.0, 49.0],
+  "CL_max": {
+    "clean": 1.5,
+    "takeoff": 1.8,
+    "landing": 2.2
+  },
+  "configuration_options": {
+    "flaps": ["clean", "takeoff", "landing"],
+    "gear": ["up", "down"]
+  },
+  "airspeed_arcs": {
+    "white": [60, 115],
+    "green": [65, 160],
+    "yellow": [160, 190],
+    "red": 190
+  },
+  "Vne": 190,
+  "Vfe": {
+    "takeoff": 140,
+    "landing": 110
+  },
+  "stall_speeds": {
+    "clean": {
+      "speeds": [70, 75, 80],
+      "weights": [3600, 3900, 4200]
+    },
+    "takeoff": {
+      "speeds": [65, 70, 75],
+      "weights": [3600, 3900, 4200]
+    },
+    "landing": {
+      "speeds": [60, 65, 70],
+      "weights": [3600, 3900, 4200]
+    }
+  },
+"G_limits": {
+  "normal": {
+    "clean": {
+      "positive": 3.8,
+      "negative": -1.52
+    },
+    "takeoff": {
+      "positive": 3.8,
+      "negative": -1.2
+    },
+    "landing": {
+      "positive": 3.8,
+      "negative": -1.0
+    }
+  },
+  "utility": {
+    "clean": {
+      "positive": 4.4,
+      "negative": -1.52
+    },
+    "takeoff": {
+      "positive": 4.4,
+      "negative": -1.2
+    },
+    "landing": {
+      "positive": 4.4,
+      "negative": -1.0
+    }
+  },
+  "aerobatic": {
+    "clean": {
+      "positive": 6,
+      "negative": -3
+    },
+    "takeoff": {
+      "positive": 6,
+      "negative": -3
+    },
+    "landing": {
+      "positive": 6,
+      "negative": -2
+    }
+  }
+},
+  "engine_options": {
+    "Lycoming IO-360 (x2)": {
+      "horsepower": 180,
+      "prop_efficiency": 0.83,
+      "power_curve": {
+        "sea_level_max": 180,
+        "max_altitude": 12000,
+        "derate_per_1000ft": 0.03
+      },
+      "prop_condition_profiles": {
+        "normal": {
+          "drag_factor": 1.0,
+          "prop_efficiency": 0.83
+        },
+        "windmilling": {
+          "drag_factor": 1.20,
+          "prop_efficiency": 0.05
+        },
+        "feathered": {
+          "drag_factor": 0.80,
+          "prop_efficiency": 0.0
+        }
+      },
+      "oei_performance": {
+        "clean_up": {
+          "feathered": {
+            "max_power_fraction": 0.5,
+            "prop_efficiency": 0.80
+          },
+          "windmilling": {
+            "max_power_fraction": 0.5,
+            "prop_efficiency": 0.70
+          },
+          "stationary": {
+            "max_power_fraction": 0.5,
+            "prop_efficiency": 0.0
+          }
+        },
+        "landing_down": {
+          "feathered": {
+            "max_power_fraction": 0.5,
+            "prop_efficiency": 0.70
+          },
+          "windmilling": {
+            "max_power_fraction": 0.5,
+            "prop_efficiency": 0.60
+          },
+          "stationary": {
+            "max_power_fraction": 0.5,
+            "prop_efficiency": 0.0
+          }
+        }
+      }
+    }
+  },
+  "prop_thrust_decay": {
+    "T_static_factor": 2.6,
+    "V_max_kts": 180
+  },
+  "single_engine_limits": {
+    "Vmca": 72,
+    "Vyse": 92,
+    "Vxse": 82,
+    "best_glide": 90,
+    "best_glide_ratio": 10.0
+  },
+  "performance_notes": "Template values only. Customize per aircraft model."
+}

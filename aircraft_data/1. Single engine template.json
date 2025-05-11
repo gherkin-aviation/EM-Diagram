@@ -1,0 +1,127 @@
+{
+  "name": "Template Single Engine",
+  "type": "single_engine",
+  "engine_count": 1,
+  "seats": 4,
+  "empty_weight": 1650,
+  "max_weight": 2550,
+  "wing_area": 174,
+  "aspect_ratio": 7.5,
+  "CD0": 0.025,
+  "e": 0.8,
+  "fuel_capacity_gal": 50,
+  "fuel_weight_per_gal": 6.0,
+  "cg_range": [35.0, 47.0],
+  "CL_max": {
+    "clean": 1.4,
+    "takeoff": 1.7,
+    "landing": 2.0
+  },
+  "configuration_options": {
+    "flaps": ["clean", "takeoff", "landing"],
+    "gear": ["fixed"]
+  },
+  "airspeed_arcs": {
+    "white": [45, 85],
+    "green": [50, 126],
+    "yellow": [126, 160],
+    "red": 160
+  },
+  "Vne": 160,
+  "Vfe": {
+    "takeoff": 110,
+    "landing": 100
+  },
+  "stall_speeds": {
+    "clean": {
+      "speeds": [55, 60, 65],
+      "weights": [1800, 2200, 2550]
+    },
+    "takeoff": {
+      "speeds": [52, 57, 62],
+      "weights": [1800, 2200, 2550]
+    },
+    "landing": {
+      "speeds": [47, 52, 57],
+      "weights": [1800, 2200, 2550]
+    }
+  },
+"G_limits": {
+  "normal": {
+    "clean": {
+      "positive": 3.8,
+      "negative": -1.52
+    },
+    "takeoff": {
+      "positive": 3.8,
+      "negative": -1.2
+    },
+    "landing": {
+      "positive": 3.8,
+      "negative": -1.0
+    }
+  },
+  "utility": {
+    "clean": {
+      "positive": 4.4,
+      "negative": -1.52
+    },
+    "takeoff": {
+      "positive": 4.4,
+      "negative": -1.2
+    },
+    "landing": {
+      "positive": 4.4,
+      "negative": -1.0
+    }
+  },
+  "aerobatic": {
+    "clean": {
+      "positive": 6,
+      "negative": -3
+    },
+    "takeoff": {
+      "positive": 6,
+      "negative": -3
+    },
+    "landing": {
+      "positive": 6,
+      "negative": -2
+    }
+  }
+},
+  "engine_options": {
+    "Lycoming O-320": {
+      "horsepower": 150,
+      "prop_efficiency": 0.8,
+      "power_curve": {
+        "sea_level_max": 150,
+        "max_altitude": 12000,
+        "derate_per_1000ft": 0.03
+      },
+      "prop_condition_profiles": {
+        "normal": {
+          "drag_factor": 1.0,
+          "prop_efficiency": 0.80
+        },
+        "windmilling": {
+          "drag_factor": 1.15,
+          "prop_efficiency": 0.05
+        },
+        "stationary": {
+          "drag_factor": 1.10,
+          "prop_efficiency": 0.0
+        }
+      }
+    }
+  },
+  "prop_thrust_decay": {
+    "T_static_factor": 2.6,
+    "V_max_kts": 160
+  },
+  "single_engine_limits": {
+    "best_glide": 73,
+    "best_glide_ratio": 9.5
+  },
+  "performance_notes": "Template values only. Replace with aircraft-specific data."
+}

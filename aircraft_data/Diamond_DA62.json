@@ -1,0 +1,150 @@
+{
+    "seats": 7,
+    "empty_weight": 3130,
+    "max_weight": 5071,
+    "wing_area": 226.0,
+    "aspect_ratio": 11.5,
+    "Vne": 194,
+    "Vno": 155,
+    "Vfe": {
+        "takeoff": 137,
+        "landing": 111
+    },
+    "stall_speeds": {
+        "clean": {
+            "weights": [
+                3130,
+                4100,
+                5071
+            ],
+            "speeds": [
+                67,
+                71,
+                74
+            ]
+        },
+        "takeoff": {
+            "weights": [
+                3130,
+                4100,
+                5071
+            ],
+            "speeds": [
+                64,
+                68,
+                71
+            ]
+        },
+        "landing": {
+            "weights": [
+                3130,
+                4100,
+                5071
+            ],
+            "speeds": [
+                60,
+                63,
+                66
+            ]
+        }
+    },
+    "CL_max": {
+        "clean": 1.4,
+        "takeoff": 1.6,
+        "landing": 1.8
+    },
+    "G_limits": {
+        "normal": {
+            "clean": 3.8,
+            "takeoff": 2.0,
+            "landing": 2.0
+        },
+        "utility": {
+            "clean": 4.4,
+            "takeoff": 2.0,
+            "landing": 2.0
+        },
+        "aerobatic": {
+            "clean": 6.0,
+            "takeoff": 0.0,
+            "landing": 0.0
+        }
+    },
+    "engine_options": {
+        "Austro AE330 (x2)": {
+            "horsepower": 360,
+            "prop_efficiency": 0.85,
+            "oei_performance": {
+                "clean_up": {
+                    "feathered": {
+                        "max_power_fraction": 0.5,
+                        "prop_efficiency": 0.75,
+                        "best_glide_speed_kias": 95,
+                        "rate_of_climb_fpm": 300
+                    },
+                    "windmilling": {
+                        "max_power_fraction": 0.5,
+                        "prop_efficiency": 0.55,
+                        "best_glide_speed_kias": 90,
+                        "rate_of_climb_fpm": 180
+                    }
+                }
+            }
+        }
+    },
+    "fuel_capacity_gal": 76,
+    "fuel_weight_per_gal": 6.7,
+    "cg_range": [
+        133.01,
+        142.01
+    ],
+    "CD0": 0.027,
+    "e": 0.82,
+    "power_curve": {
+        "sea_level_max": 360,
+        "max_altitude": 20000,
+        "derate_per_1000ft": 0.03
+    },
+    "cg_effect_factor": {
+        "min_cg": 1.03,
+        "max_cg": 0.97
+    },
+    "airspeed_arcs": {
+        "white_arc": [
+            60,
+            111
+        ],
+        "green_arc": [
+            67,
+            155
+        ],
+        "yellow_arc": [
+            155,
+            194
+        ]
+    },
+    "single_engine_limits": {
+        "Vmca": 68,
+        "Vyse": 85,
+        "Vxse": 82
+    },
+    "configuration_options": {
+        "flaps": [
+            "clean",
+            "takeoff",
+            "landing"
+        ],
+        "gear": [
+            "retractable"
+        ],
+        "speed_brakes": [
+            "none"
+        ],
+        "cowl_flaps": [
+            "open",
+            "closed"
+        ]
+    },
+    "engine_count": 2,
+    "service_ceiling_ft": 20000
+}
