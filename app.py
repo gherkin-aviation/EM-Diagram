@@ -3877,7 +3877,17 @@ def save_aircraft_to_file(
     except Exception as e:
         return (f"❌ Error saving: {str(e)}", dash.no_update, dash.no_update)
 
-    
+
+from flask import send_from_directory
+
+@app.server.route("/robots.txt")
+def serve_robots():
+    return send_from_directory('.', 'robots.txt')
+
+@app.server.route("/sitemap.xml")
+def serve_sitemap():
+    return send_from_directory('.', 'sitemap.xml')
+
 
 
 if __name__ == "__main__":
