@@ -9,7 +9,7 @@ from edit_aircraft_page import edit_aircraft_layout
 import copy 
 from dash import ctx
 from dash.exceptions import PreventUpdate
-from flask import send_from_directory
+
 
 
 # ✅ Load aircraft data FIRST
@@ -64,6 +64,7 @@ app.index_string = """
         <meta name="keywords" content="EM Diagram, Energy Maneuverability, Aircraft Performance, General Aviation, Vmc, Vyse, Vxse, Ps Contours, G-Limits, Stall Speed, Spin Awareness, Stall Awareness, Turn Rate, Flight Envelope, FAA Training, Multi-Engine Safety, Aerobatic Flight, FAA Flight Training, Maneuvering Performance, AOB, Angle of Bank, Aviation Education, Pilot Tools, Military Trainer Aircraft, FAA Checkride Prep, Performance Planning, General Aviation Safety">
         <meta name="robots" content="index, follow">
         <meta name="author" content="Gherkin Aviation">
+        <meta name="google-site-verification" content="ukKfZyRJS6up-cpev6piffO5YyKPIhS-DdgnRgBUBig" />
         {%favicon%}
         {%css%}
     </head>
@@ -3878,9 +3879,6 @@ def save_aircraft_to_file(
 
     
 
-@app.server.route('/google1773265b07a2b9b9.html')
-def google_verification():
-    return send_from_directory('.', 'google1773265b07a2b9b9.html')
 
 if __name__ == "__main__":
     # threading.Timer(1.0, open_browser).start()
