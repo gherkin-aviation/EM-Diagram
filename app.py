@@ -9,6 +9,8 @@ from edit_aircraft_page import edit_aircraft_layout
 import copy 
 from dash import ctx
 from dash.exceptions import PreventUpdate
+from flask import send_from_directory
+
 
 # ✅ Load aircraft data FIRST
 import sys
@@ -3873,6 +3875,12 @@ def save_aircraft_to_file(
 
     except Exception as e:
         return (f"❌ Error saving: {str(e)}", dash.no_update, dash.no_update)
+
+    
+
+@app.server.route('/google1773265b07a2b9b9.html')
+def google_verification():
+    return send_from_directory('.', 'google1773265b07a2b9b9.html')
 
 if __name__ == "__main__":
     # threading.Timer(1.0, open_browser).start()
