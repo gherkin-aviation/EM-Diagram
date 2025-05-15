@@ -359,15 +359,25 @@ def desktop_layout():
 
             # Graph Column
             dbc.Col([
-                dbc.Card([
-                    dbc.CardBody([
-                        html.Div([
-                            dcc.Graph(id="em-graph")
-                        ], className="graph-panel")
-                    ])
-                ]),
+                html.Div([  # This div enforces the aspect ratio
+                    dcc.Graph(
+                        id="em-graph",
+                        config={
+                            "staticPlot": True,
+                            "displaylogo": False,
+                            "displayModeBar": True,
+                            "modeBarButtonsToRemove": [
+                                "zoom2d", "pan2d", "select2d", "lasso2d", "zoomIn2d", "zoomOut2d",
+                                "autoScale2d", "resetScale2d", "hoverClosestCartesian", "hoverCompareCartesian",
+                                "toggleSpikelines", "drawline", "drawopenpath", "drawclosedpath",
+                                "drawcircle", "drawrect", "eraseshape"
+                            ]
+                        },
+                        className="dash-graph"
+                    )
+                ], className="graph-panel"),
                 html.Div("© 2025 Nicholas Len, AEROEDGE. All rights reserved.", className="footer")
-            ], xs=12, md=8, className="graph-column")
+            ], className="graph-column")
         ],className="main-row")
     ], className="full-height-container")
 
@@ -623,15 +633,25 @@ def mobile_layout():
 
             # Graph Column
             dbc.Col([
-                dbc.Card([
-                    dbc.CardBody([
-                        html.Div([
-                            dcc.Graph(id="em-graph"),
-                        ], className="graph-panel")
-                    ])
-                ]),
+                html.Div([  # This div enforces the aspect ratio
+                    dcc.Graph(
+                        id="em-graph",
+                        config={
+                            "staticPlot": True,
+                            "displaylogo": False,
+                            "displayModeBar": True,
+                            "modeBarButtonsToRemove": [
+                                "zoom2d", "pan2d", "select2d", "lasso2d", "zoomIn2d", "zoomOut2d",
+                                "autoScale2d", "resetScale2d", "hoverClosestCartesian", "hoverCompareCartesian",
+                                "toggleSpikelines", "drawline", "drawopenpath", "drawclosedpath",
+                                "drawcircle", "drawrect", "eraseshape"
+                            ]
+                        },
+                        className="dash-graph"
+                    )
+                ], className="graph-panel"),
                 html.Div("© 2025 Nicholas Len, AEROEDGE. All rights reserved.", className="footer")
-            ], xs=12, md=8, className="graph-column")
+            ], className="graph-column")
         ],className="main-row")
     ], className="full-height-container")
 
