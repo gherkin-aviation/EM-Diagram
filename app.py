@@ -84,14 +84,32 @@ app.layout = html.Div([
     dcc.Store(id="aircraft-data-store"),
     dcc.Store(id="last-saved-aircraft"),
     dcc.Store(id="stored-total-weight"),
+    dcc.Store(id="screen-width"),
     html.Div(id="page-content")
 ])
 
+# Define clientside JS callback to detect screen width
+app.clientside_callback(
+    """
+    function(_) {
+        return window.innerWidth;
+    }
+    """,
+    Output("screen-width", "data"),
+    Input("url", "pathname")
+)
+
+
 import dash_bootstrap_components as dbc
-from dash import dcc, html
+from dash import dcc, html, Input, Output, State, ctx, ALL
 
 # === Redesigned Layout with Original IDs Preserved ===
-def em_diagram_layout():
+def em_diagram_layout(is_mobile=False):
+    if is_mobile:
+        return mobile_layout()
+    else:
+        return desktop_layout()
+def desktop_layout():
     return html.Div([
             # Header Row (centered banner logo inside a fixed-height header)
             html.Div([
@@ -103,8 +121,14 @@ def em_diagram_layout():
         # Two-Column Flex Layout: Sidebar + Graph
         html.Div([
             # Sidebar Left
-            html.Div([
+            dbc.Col([
                 html.Div(id="resize-handle", className="resize-handle"),
+                html.Div("EM Diagram Generator", style={
+                    "fontWeight": "600",
+                    "fontSize": "20px",
+                    "marginBottom": "10px",
+                    "color": "#1b1e23"  # match your theme color
+                }),
                 dbc.Button(
                     "Edit / Create Aircraft",
                     id="edit-aircraft-button",
@@ -331,7 +355,7 @@ def em_diagram_layout():
                         dcc.Download(id="pdf-download")
                     ])
                 ])
-            ], className="resizable-sidebar"),
+            ], xs=12, md=4, className="resizable-sidebar"),
 
             # Graph Column
             dbc.Col([
@@ -343,24 +367,299 @@ def em_diagram_layout():
                     ])
                 ]),
                 html.Div("© 2025 Nicholas Len, AEROEDGE. All rights reserved.", className="footer")
-            ], width=8, className="graph-column")
+            ], xs=12, md=8, className="graph-column")
         ],className="main-row")
     ], className="full-height-container")
 
 dcc.Checklist(id="oei-toggle", style={"display": "none"}, options=[], value=[])
 
+def mobile_layout():
+    return html.Div([
+            # Header Row (centered banner logo inside a fixed-height header)
+            html.Div([
+                html.Div([
+                    html.Img(src="/assets/logo.png", className="banner-logo")
+                ], className="banner-inner")
+            ], className="banner-header"),
+
+        # Two-Column Flex Layout: Sidebar + Graph
+        html.Div([
+            # Sidebar Left
+            dbc.Col([
+                html.Div(id="resize-handle", className="resize-handle"),
+                html.Div("EM Diagram Generator", style={
+                    "fontWeight": "600",
+                    "fontSize": "20px",
+                    "marginBottom": "10px",
+                    "color": "#1b1e23"  # match your theme color
+                }),
+                dbc.Button(
+                    "Edit / Create Aircraft",
+                    id="edit-aircraft-button",
+                    color="success",
+                    className="mb-3",
+                    style={"width": "200px", "fontWeight": "bold"}
+                ),
+
+                # Aircraft Configuration Panel
+                dbc.Card([
+                    dbc.CardHeader("Aircraft Configuration"),
+                    dbc.CardBody([
+                        dbc.Row([
+                            dbc.Col([
+                                html.Label("Aircraft", className="input-label"),
+                                dcc.Dropdown(id="aircraft-select", options=[], placeholder="Select an Aircraft...", className="dropdown")
+                            ])
+                        ], className="mb-3"),
+
+                        dbc.Row([
+                            dbc.Col([
+                                html.Label("Engine", className="input-label"),
+                                dcc.Dropdown(id="engine-select", className="dropdown"),
+                                
+                            ])
+                        ], className="mb-3"),
+
+                        dbc.Row([
+                            dbc.Col([
+                                html.Label("Category", className="input-label"),
+                                dcc.Dropdown(id="category-select", className="dropdown")
+                            ])
+                        ], className="mb-3"),
+
+                        dbc.Row([
+                            dbc.Col([
+                                html.Label("Flap Configuration", className="input-label"),
+                                dcc.Dropdown(id="config-select", className="dropdown")
+                            ])
+                        ], className="mb-3"),
+
+                        dbc.Row([
+                            dbc.Col([
+                                html.Label("Landing Gear", className="input-label"),
+                                dcc.Dropdown(id="gear-select", className="dropdown")
+                            ])
+                        ], className="mb-3"),
+
+                        dbc.Row([
+                            dbc.Col([
+                                html.Label("Total Weight", className="input-label"),
+                                html.Div(id="total-weight-display", className="weight-box")
+                            ])
+                        ], className="mb-3"),
+
+                        dbc.Row([
+                            dbc.Col([
+                                html.Label("Occupants", className="input-label"),
+                                dcc.Dropdown(id="occupants-select", className="dropdown-small")
+                            ], width=6),
+                            dbc.Col([
+                                html.Label("Occupant Weight (lbs)", className="input-label"),
+                                dcc.Input(id="passenger-weight-input", type="number", value=180, min=50, max=400, step=1, className="input-small")
+                            ], width=6)
+                        ], className="mb-3"),
+
+                        
+                        dbc.Row([
+                            dbc.Col([
+                                html.Label("Fuel (gal)", className="input-label"),
+                                dcc.Slider(id="fuel-slider", min=0, max=50, step=1, value=20, marks={}, tooltip={"always_visible": True})
+                            ])
+                        ], className="mb-3"),
+
+                        dbc.Row([
+                            dbc.Col([
+                                html.Label("Power Setting", className="input-label"),
+                                dcc.Slider(
+                                    id="power-setting",
+                                    min=0.05,
+                                    max=1.0,
+                                    step=0.05,
+                                    value=0.50,
+                                    marks={0.05: "IDLE", 0.2: "20%", 0.4: "40%", 0.6: "60%", 0.8: "80%", 1: "100%"},
+                                    tooltip={"always_visible": True}
+                                )
+                            ])
+                        ], className="mb-3"),
+
+                        html.Div([
+                            dcc.Slider(id="cg-slider", min=0, max=1, value=0.5, step=0.01)
+                        ], id="cg-slider-container"),
+
+                        dbc.Row([
+                            dbc.Col([
+                                html.Label("Altitude (ft)", className="input-label"),
+                                dcc.Slider(id="altitude-slider", min=0, max=35000, step=1000, value=0, marks={}, tooltip={"always_visible": True})
+                            ])
+                        ], className="mb-3"),
+
+                        dbc.Row([
+                            dbc.Col([
+                                html.Label("Flight Path Angle (deg)", className="input-label"),
+                                dcc.Slider(
+                                    id="pitch-angle",
+                                    min=-15,
+                                    max=25,
+                                    step=1,
+                                    value=0,
+                                    marks={-15: "-15°", -10: "-10°", -5: "-5°", 0: "0°", 5: "5°", 10: "10°", 15: "15°", 20: "20°", 25: "25°"},
+                                    tooltip={"always_visible": True}
+                                )
+                            ])
+                        ], className="mb-3")
+                    ])
+                ], className="mb-4"),
+
+                # Overlay & Units
+                dbc.Card([
+                    dbc.CardHeader("Overlay Options"),
+                    dbc.CardBody([
+
+                        # Airspeed Units Toggle
+                        html.Div([
+                            html.Label("Airspeed Units", className="input-label", style={"marginBottom": "6px"}),
+                            dbc.RadioItems(
+                                id="unit-select",
+                                options=[
+                                    {"label": "KIAS", "value": "KIAS"},
+                                    {"label": "MPH", "value": "MPH"}
+                                ],
+                                value="KIAS",
+                                inline=True,
+                                
+                            )
+                        ], className="radio-inline-group"),
+
+                        # Overlay checklist (always visible)
+                        dcc.Checklist(
+                            id="overlay-toggle",
+                            options=[
+                                {"label": "Ps Contours", "value": "ps"},
+                                {"label": "Intermediate G Lines", "value": "g"},
+                                {"label": "Turn Radius Lines", "value": "radius"},
+                                {"label": "Angle of Bank Lines", "value": "aob"},
+                                {"label": "Negative G Envelope", "value": "negative_g"}
+                            ],
+                            value=["ps", "g", "radius", "aob"],
+                            labelStyle={"display": "block"},
+                            className="checklist mb-3"
+                        ),
+                        html.Div([
+                            html.Label("Engine Failure Simulation", className="input-label"),
+                            dcc.Checklist(
+                                id="oei-toggle",
+                                options=[{"label": "Simulate One Engine Inoperative", "value": "enabled"}],
+                                value=[],
+                                style={"margin-bottom": "5px"},
+                            )
+                        ], id="oei-container", className="mb-3"),
+                        # OEI toggle (Simulate One Engine Inoperative)
+                        html.Div(id="oei-container", className="mb-3"),
+
+                        # Dynamic Vmc / Vyse Checklist (conditionally shown)
+                        html.Div([
+                            dcc.Checklist(
+                                id="multi-engine-toggle-options",
+                                options=[
+                                    {"label": "Dynamic Vmc", "value": "vmca"},
+                                    {"label": "Dynamic Vyse", "value": "dynamic_vyse"}
+                                ],
+                                value=[],
+                                labelStyle={"display": "block"}
+                            )
+                        ], id="multi-engine-toggles", style={"display": "none"}, className="mb-3"),
+
+                        
+                        # === Prop Condition (only for Dynamic Vmc) ===
+                        html.Div([
+                            html.Label("Propeller Condition", className="input-label"),
+                            dcc.RadioItems(
+                                id="prop-condition",
+                                options=[
+                                    {"label": "Feathered", "value": "feathered"},
+                                    {"label": "Windmilling", "value": "windmilling"}                                    
+                                ],
+                                value="feathered",
+                                labelStyle={"display": "inline-block", "margin-right": "10px"}
+                            )
+                        ], id="prop-condition-container", style={"display": "none"})
+                    ])
+                ], className="mb-4"),
+
+                # Maneuver Builder
+                dbc.Card([
+                    dbc.CardHeader("Maneuver Overlays"),
+                    dbc.CardBody([
+                        dbc.Row([
+                            dbc.Col([
+                                html.Label("Maneuver", className="input-label"),
+                                dcc.Dropdown(
+                                    id="maneuver-select", className="dropdown",
+                                    options=[
+                                        {"label": "Steep Turn", "value": "steep_turn"},
+                                        {"label": "Chandelle", "value": "chandelle"}
+                                    ],
+                                    placeholder="Select a Maneuver",
+                                    style={"width": "100%"}
+                                )
+                            ])
+                        ], className="mb-3"),
+
+                        dbc.Row([
+                            dbc.Col(html.Div(id="maneuver-options-container"))
+                        ])
+                    ])
+                ], className="mb-4"),
+
+                # Export
+                dbc.Card([
+                    dbc.CardHeader("Export"),
+                    dbc.CardBody([
+                        dbc.Button("Export as PDF", id="pdf-button", color="primary", className="me-2"),
+                        dcc.Download(id="pdf-download")
+                    ])
+                ])
+            ], xs=12, md=4, className="resizable-sidebar"),
+
+            # Graph Column
+            dbc.Col([
+                dbc.Card([
+                    dbc.CardBody([
+                        html.Div([
+                            dcc.Graph(id="em-graph"),
+                        ], className="graph-panel")
+                    ])
+                ]),
+                html.Div("© 2025 Nicholas Len, AEROEDGE. All rights reserved.", className="footer")
+            ], xs=12, md=8, className="graph-column")
+        ],className="main-row")
+    ], className="full-height-container")
+
+dcc.Checklist(id="oei-toggle", style={"display": "none"}, options=[], value=[])
+
+
 # ✅ Automatically open the browser when the app starts
 def open_browser():
     webbrowser.open("http://127.0.0.1:8050/")
 
-@app.callback(Output("page-content", "children"), Input("url", "pathname"))
-def display_page(pathname):
+@app.callback(
+    Output("page-content", "children"),
+    Input("url", "pathname"),
+    Input("screen-width", "data")
+)
+def display_page(pathname, screen_width):
+    # Gracefully handle undefined screen width
+    if screen_width is None:
+        screen_width = 1024  # assume desktop by default
+
+    is_mobile = screen_width and screen_width < 768
+
     if pathname == "/" or pathname is None:
-        return em_diagram_layout()
+        return em_diagram_layout(is_mobile=is_mobile)
     elif pathname == "/edit-aircraft":
         return edit_aircraft_layout()
     else:
-        return em_diagram_layout()
+        return html.H1("404 - Page not found")
 
 
     
@@ -757,6 +1056,7 @@ def calculate_dynamic_vyse(
     Input({"type": "chandelle-bank", "index": ALL}, "value"),
     Input({"type": "chandelle-ghost", "index": ALL}, "value"),
     Input("pitch-angle", "value"),
+    Input("screen-width", "data"),
 )
 
 def update_graph(
@@ -783,7 +1083,8 @@ def update_graph(
     chandelle_ias_values,
     chandelle_bank_values,
     chandelle_ghost_values,
-    pitch_angle
+    pitch_angle,
+    screen_width
     
 ):
     import plotly.graph_objects as go  # <== you must ensure this is imported here if not at top of file
@@ -1937,38 +2238,60 @@ def update_graph(
         y_max = 100
         y_min = 0
 
+    is_mobile = screen_width and screen_width < 768
+
+    legend_font_size = 10 if is_mobile else 12
     
         # Format into title (HTML-style for multi-line)
     fig.update_layout(
         title=dict(
-            text=f"<b style='font-size:22px'>{ac_name}</b>",
+            text=f"<b>{ac_name}</b>" if not is_mobile else ac_name,
+            font=dict(size=22 if not is_mobile else 14, color="#005F8C"),
             x=0.5,
             y=0.95,
             xanchor="center",
-            yanchor="top",
-            font=dict(color="#005F8C")
+            yanchor="top"
         ),
-        margin=dict(t=100),
-        hovermode="closest",
         xaxis=dict(
             title=f"Indicated Airspeed ({unit})",
+            title_font=dict(size=14 if not is_mobile else 10),
+            tickfont=dict(size=12 if not is_mobile else 9),
             dtick=10,
             range=[x_min, x_max],
+            showgrid=True,
             showspikes=False,
             spikemode="across",
             spikesnap="cursor"
         ),
         yaxis=dict(
             title="Turn Rate (deg/sec)",
+            title_font=dict(size=14 if not is_mobile else 10),
+            tickfont=dict(size=12 if not is_mobile else 9),
             dtick=5,
             range=[y_min, y_max],
+            showgrid=True,
             showspikes=False,
             spikemode="across",
             spikesnap="cursor"
         ),
+        legend=dict(
+            orientation="h",
+            yanchor="top",
+            y=-0.25,  # Push legend below x-axis
+            xanchor="center",
+            x=0.5,
+            font=dict(size=legend_font_size)
+        ),
+        margin=dict(
+            t=60 if is_mobile else 100,
+            b=100 if is_mobile else 80,
+            l=40,
+            r=40
+        ),
         paper_bgcolor="#f7f9fc",
         plot_bgcolor="#f7f9fc",
-        font=dict(color="#1b1e23")
+        font=dict(color="#1b1e23"),
+        hovermode="closest"
     )
     # === STEEP TURN MANEUVER TRACE ===
     if aob_values and ias_values and len(aob_values) > 0 and len(ias_values) > 0:
@@ -2395,6 +2718,18 @@ def load_last_saved_on_nav(path, last_saved):
     if path == "/" and last_saved:
         return last_saved
     raise PreventUpdate
+
+@app.callback(
+    Output("browser-width", "data"),
+    Input("url", "pathname")
+)
+def get_browser_width(_):
+    import flask
+    try:
+        width = flask.request.headers.get('User-Agent')
+        return width
+    except:
+        return "unknown"
 
 @app.callback(
     [
