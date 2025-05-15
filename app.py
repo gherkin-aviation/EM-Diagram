@@ -650,11 +650,11 @@ def mobile_layout():
                         className="dash-graph"
                     )
                 ], className="graph-panel"),
-            ], className="graph-wrapper")
+            ], className="graph-wrapper"),
             html.Div("© 2025 Nicholas Len, AEROEDGE. All rights reserved.", className="footer")
             
         ],className="main-row")
-    ], className="full-height-container")
+    ], className="full-height-container"),
 
 dcc.Checklist(id="oei-toggle", style={"display": "none"}, options=[], value=[])
 
