@@ -218,15 +218,19 @@ button:hover,
     padding: 12px;
     margin-top: 16px;
     flex-grow: 1;
+    overflow-x: auto;
+  }
+
+  .graph-wrapper {
+    overflow-x: auto;
+    width: 100%;
   }
 
   .graph-panel {
-    aspect-ratio: 4 / 3;
-    width: 100%;
-    max-width: 100%;
-    overflow: visible;
-    position: static !important;
-    top: auto !important;
+    min-width: 640px;
+    min-height: 480px;
+    width: 640px;
+    height: 480px;
   }
 
   .green-button {

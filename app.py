@@ -650,8 +650,9 @@ def mobile_layout():
                         className="dash-graph"
                     )
                 ], className="graph-panel"),
-                html.Div("© 2025 Nicholas Len, AEROEDGE. All rights reserved.", className="footer")
-            ], className="graph-column")
+            ], className="graph-wrapper")
+            html.Div("© 2025 Nicholas Len, AEROEDGE. All rights reserved.", className="footer")
+            
         ],className="main-row")
     ], className="full-height-container")
 
