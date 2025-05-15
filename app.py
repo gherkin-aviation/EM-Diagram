@@ -63,7 +63,7 @@ app.index_string = """
         <meta name="description" content="Interactive Energy Maneuverability Diagrams for general aviation, multi-engine, aerobatic, and military aircraft. Analyze Ps contours, Vmc dynamics, Vyse, G-limits, stall margins, and more.">
         <meta name="keywords" content="EM Diagram, Energy Maneuverability, Aircraft Performance, General Aviation, Vmc, Vyse, Vxse, Ps Contours, G-Limits, Stall Speed, Spin Awareness, Stall Awareness, Turn Rate, Flight Envelope, FAA Training, Multi-Engine Safety, Aerobatic Flight, FAA Flight Training, Maneuvering Performance, AOB, Angle of Bank, Aviation Education, Pilot Tools, Military Trainer Aircraft, FAA Checkride Prep, Performance Planning, General Aviation Safety">
         <meta name="robots" content="index, follow">
-        <meta name="author" content="Gherkin Aviation">
+        <meta name="author" content="AEROEDGE">
         <meta name="google-site-verification" content="ukKfZyRJS6up-cpev6piffO5YyKPIhS-DdgnRgBUBig" />
         {%favicon%}
         {%css%}
@@ -83,228 +83,271 @@ app.layout = html.Div([
     dcc.Location(id="url"),
     dcc.Store(id="aircraft-data-store"),
     dcc.Store(id="last-saved-aircraft"),
+    dcc.Store(id="stored-total-weight"),
     html.Div(id="page-content")
 ])
 
-    # Row 1: Logo and Title
+import dash_bootstrap_components as dbc
+from dash import dcc, html
 
+# === Redesigned Layout with Original IDs Preserved ===
 def em_diagram_layout():
     return html.Div([
-    html.Div([
-        html.Img(src="/assets/logo.png", style={"height": "80px", "marginRight": "15px"}),
-        html.H1("EM Diagram Generator", className="title")
-    ], style={"display": "flex", "alignItems": "center", "marginBottom": "20px"}),
-
-    # Row 2: Aircraft | Engine | Occupants | Total Weight + OEI
-    html.Div([
-        html.Button(
-            "✏️ Edit / Create Aircraft",
-            id="edit-aircraft-button",
-            n_clicks=0,
-            style={"backgroundColor": "#28a745", "color": "white", "fontWeight": "bold", "marginBottom": "10px"}
-        )
-    ]),
-
-    html.Div([
-        html.Div([
-            html.Label("Aircraft"),
-            dcc.Dropdown(
-                id="aircraft-select",
-                options=[],
-                value=None,  # default to None so no graph is generated
-                placeholder="Select an Aircraft...",
-                style={"width": "180px"}
-            )
-        ], className="inline-block"),
-
-        html.Div([
-            html.Label("Engine"),
-            dcc.Dropdown(id="engine-select", style={"width": "180px"}),
-            html.Div(id="oei-container")  # OEI toggle will render here when applicable
-        ], className="inline-block"),
-        html.Div([
-            html.Label("Category"),
-            dcc.Dropdown(id="category-select", style={"width": "180px"})
-        ], className="inline-block"),
-        html.Div([
-            html.Label("Occupants"),
-            dcc.Dropdown(id="occupants-select", style={"width": "80px"})
-        ], className="inline-block"),
-        html.Div([
-            html.Label("Pax Weight (lbs)"),
-            dcc.Input(
-                id="passenger-weight-input",
-                type="number",
-                value=180,
-                min=50,
-                max=400,
-                step=1,
-                style={"width": "50px"}
-            )
-        ], className="inline-block", style={"width": "100px"}),
-
-        html.Div(id="total-weight-display", className="inline-block", style={"marginLeft": "15px"})
-    ], className="section"),
-    dcc.Store(id="stored-total-weight"),
-    # Row 3: Power | Fuel | CG
-    html.Div([
-        html.Div([
-            html.Label("Power Setting"),
-            dcc.Slider(
-                id="power-setting",
-                min=0.05,
-                max=1.0,
-                step=0.05,
-                value=0.50,
-                 marks={
-                    0.05: "IDLE",
-                    0.2: "20%",
-                    0.4: "40%",
-                    0.6: "60%",
-                    0.8: "80%",
-                    1: "100%"
-                },
-                tooltip={"always_visible": True}
-            )
-        ], style={"width": "300px"}, className="inline-block"),
-        html.Div([
-            html.Label("Flight Path Angle (°)"),
-            dcc.Slider(
-                id="pitch-angle",
-                min=-15,
-                max=25,
-                step=1,
-                value=0,
-                marks={
-                    -15: "-15°",
-                    -10: "-10°",
-                    -5: "-5°",
-                    0: "0°",
-                    5: "5°",
-                    10: "10°",
-                    15: "15°",
-                    20: "20°",
-                    25: "25°"
-                },
-                tooltip={"always_visible": True}
-            )
-        ], style={"width": "300px"}, className="inline-block"),
-        html.Div([
-            html.Label("Fuel (gal)"),
-            dcc.Slider(
-                id="fuel-slider",
-                min=0,
-                max=50,
-                step=1,
-                value=20,
-                marks={},
-                tooltip={"always_visible": True}
-            )
-        ], className="inline-block fuel-slider"),
-
-        html.Div(id="cg-slider-container", className="inline-block cg-slider")
-    ], className="section"),
-
-    # Row 4: Flaps | Gear | Altitude
-    html.Div([
-        html.Div([
-            html.Label("Flap Configuration"),
-            dcc.Dropdown(id="config-select", style={"width": "180px"})
-        ], className="inline-block"),
-
-        html.Div([
-            html.Label("Landing Gear"),
-            dcc.Dropdown(id="gear-select", style={"width": "150px"})
-        ], className="inline-block"),
-
-        html.Div([
-            html.Label("Altitude (ft)"),
-            dcc.Slider(id="altitude-slider", min=0, max=35000, step=1000, value=0, marks={}, tooltip={"always_visible": True})
-        ], className="inline-block altitude-slider")
-    ], className="section"),
-
-    # Row 5: Overlays | Export
-    html.Div([
-        html.Div([
-            html.Label("Overlay Options"),
-            dcc.Checklist(
-                id="overlay-toggle",
-                options=[
-                    {"label": "Ps Contours", "value": "ps"},
-                    {"label": "Intermediate G Lines", "value": "g"},
-                    {"label": "Turn Radius Lines", "value": "radius"},
-                    {"label": "Angle of Bank Lines", "value": "aob"},
-                    {"label": "Negative G Envelope", "value": "negative_g"}
-                ],
-                value=["ps", "g", "radius", "aob"],
-                labelStyle={"display": "inline-block", "marginRight": "15px"}
-            ),
+            # Header Row (centered banner logo inside a fixed-height header)
             html.Div([
-                dcc.Checklist(
-                    id="multi-engine-toggle-options",
-                    options=[
-                        {"label": "Dynamic Vmc", "value": "vmca"},
-                        {"label": "Dynamic Vyse", "value": "dynamic_vyse"}
-                    ],
-                    value=[],
-                    labelStyle={"display": "inline-block", "marginRight": "15px"}
-                )
-            ], id="multi-engine-toggles", style={"display": "none"})
-        ], className="inline-block overlays"),
+                html.Div([
+                    html.Img(src="/assets/logo.png", className="banner-logo")
+                ], className="banner-inner")
+            ], className="banner-header"),
+
+        # Two-Column Flex Layout: Sidebar + Graph
         html.Div([
-            html.Label("Airspeed Units"),
-            dcc.Dropdown(
-                id="unit-select",
-                options=[
-                    {"label": "KIAS", "value": "KIAS"},
-                    {"label": "MPH", "value": "MPH"}
-                ],
-                value="KIAS",
-                clearable=False,
-                style={"width": "100px"}
-            )
-        ], className="inline-block", style={"marginLeft": "15px"}),
+            # Sidebar Left
+            html.Div([
+                html.Div(id="resize-handle", className="resize-handle"),
+                dbc.Button(
+                    "Edit / Create Aircraft",
+                    id="edit-aircraft-button",
+                    color="success",
+                    className="mb-3",
+                    style={"width": "200px", "fontWeight": "bold"}
+                ),
 
-        html.Div([
-            html.Button("Export as PDF", id="pdf-button", n_clicks=0, className="green-button"),
-            dcc.Download(id="pdf-download")
-        ], className="inline-block export-button")
-    ], className="section"),
+                # Aircraft Configuration Panel
+                dbc.Card([
+                    dbc.CardHeader("Aircraft Configuration"),
+                    dbc.CardBody([
+                        dbc.Row([
+                            dbc.Col([
+                                html.Label("Aircraft", className="input-label"),
+                                dcc.Dropdown(id="aircraft-select", options=[], placeholder="Select an Aircraft...", className="dropdown")
+                            ])
+                        ], className="mb-3"),
 
-    # Row 6: Maneuver Builder
-    html.Div([
-        html.Div([
-            html.Label("Maneuver"),
-            dcc.Dropdown(
-                id="maneuver-select",
-                options=[
-                    {"label": "Steep Turn", "value": "steep_turn"},
-                    {"label": "Chandelle", "value": "chandelle"},
-                    # future: chandelle, lazy 8, etc.
-                ],
-                placeholder="Select a Maneuver",
-                style={"width": "200px"}
-            )
-        ], className="inline-block", style={"marginRight": "20px"}),
+                        dbc.Row([
+                            dbc.Col([
+                                html.Label("Engine", className="input-label"),
+                                dcc.Dropdown(id="engine-select", className="dropdown"),
+                                
+                            ])
+                        ], className="mb-3"),
 
-        html.Div(id="maneuver-options-container", className="inline-block")
-    ], className="section"),
+                        dbc.Row([
+                            dbc.Col([
+                                html.Label("Category", className="input-label"),
+                                dcc.Dropdown(id="category-select", className="dropdown")
+                            ])
+                        ], className="mb-3"),
 
-    dcc.Store(id="maneuver-data", data={}),
+                        dbc.Row([
+                            dbc.Col([
+                                html.Label("Flap Configuration", className="input-label"),
+                                dcc.Dropdown(id="config-select", className="dropdown")
+                            ])
+                        ], className="mb-3"),
 
-    # Graph & hidden fields
-    dcc.Graph(id="em-graph", style={"height": "480px"}),
-    html.Div("© 2025 Nicholas Len, Gherkin Aviation. All rights reserved. Unauthorized distribution prohibited.",
-    className="footer"
-    ),
-    html.Div([
-        dcc.Checklist(id="oei-toggle", style={"display": "none"}),
-        dcc.RadioItems(id="prop-condition", style={"display": "none"}),
-        dcc.Slider(id="cg-slider", min=0, max=1, value=0.5)
-    ], style={"display": "none"}),
+                        dbc.Row([
+                            dbc.Col([
+                                html.Label("Landing Gear", className="input-label"),
+                                dcc.Dropdown(id="gear-select", className="dropdown")
+                            ])
+                        ], className="mb-3"),
 
-    html.Div(id="prop-condition-container", style={"display": "none"})
-])
+                        dbc.Row([
+                            dbc.Col([
+                                html.Label("Total Weight", className="input-label"),
+                                html.Div(id="total-weight-display", className="weight-box")
+                            ])
+                        ], className="mb-3"),
+
+                        dbc.Row([
+                            dbc.Col([
+                                html.Label("Occupants", className="input-label"),
+                                dcc.Dropdown(id="occupants-select", className="dropdown-small")
+                            ], width=6),
+                            dbc.Col([
+                                html.Label("Occupant Weight (lbs)", className="input-label"),
+                                dcc.Input(id="passenger-weight-input", type="number", value=180, min=50, max=400, step=1, className="input-small")
+                            ], width=6)
+                        ], className="mb-3"),
+
+                        
+                        dbc.Row([
+                            dbc.Col([
+                                html.Label("Fuel (gal)", className="input-label"),
+                                dcc.Slider(id="fuel-slider", min=0, max=50, step=1, value=20, marks={}, tooltip={"always_visible": True})
+                            ])
+                        ], className="mb-3"),
+
+                        dbc.Row([
+                            dbc.Col([
+                                html.Label("Power Setting", className="input-label"),
+                                dcc.Slider(
+                                    id="power-setting",
+                                    min=0.05,
+                                    max=1.0,
+                                    step=0.05,
+                                    value=0.50,
+                                    marks={0.05: "IDLE", 0.2: "20%", 0.4: "40%", 0.6: "60%", 0.8: "80%", 1: "100%"},
+                                    tooltip={"always_visible": True}
+                                )
+                            ])
+                        ], className="mb-3"),
+
+                        html.Div([
+                            dcc.Slider(id="cg-slider", min=0, max=1, value=0.5, step=0.01)
+                        ], id="cg-slider-container"),
+
+                        dbc.Row([
+                            dbc.Col([
+                                html.Label("Altitude (ft)", className="input-label"),
+                                dcc.Slider(id="altitude-slider", min=0, max=35000, step=1000, value=0, marks={}, tooltip={"always_visible": True})
+                            ])
+                        ], className="mb-3"),
+
+                        dbc.Row([
+                            dbc.Col([
+                                html.Label("Flight Path Angle (deg)", className="input-label"),
+                                dcc.Slider(
+                                    id="pitch-angle",
+                                    min=-15,
+                                    max=25,
+                                    step=1,
+                                    value=0,
+                                    marks={-15: "-15°", -10: "-10°", -5: "-5°", 0: "0°", 5: "5°", 10: "10°", 15: "15°", 20: "20°", 25: "25°"},
+                                    tooltip={"always_visible": True}
+                                )
+                            ])
+                        ], className="mb-3")
+                    ])
+                ], className="mb-4"),
+
+                # Overlay & Units
+                dbc.Card([
+                    dbc.CardHeader("Overlay Options"),
+                    dbc.CardBody([
+
+                        # Airspeed Units Toggle
+                        html.Div([
+                            html.Label("Airspeed Units", className="input-label", style={"marginBottom": "6px"}),
+                            dbc.RadioItems(
+                                id="unit-select",
+                                options=[
+                                    {"label": "KIAS", "value": "KIAS"},
+                                    {"label": "MPH", "value": "MPH"}
+                                ],
+                                value="KIAS",
+                                inline=True,
+                                
+                            )
+                        ], className="radio-inline-group"),
+
+                        # Overlay checklist (always visible)
+                        dcc.Checklist(
+                            id="overlay-toggle",
+                            options=[
+                                {"label": "Ps Contours", "value": "ps"},
+                                {"label": "Intermediate G Lines", "value": "g"},
+                                {"label": "Turn Radius Lines", "value": "radius"},
+                                {"label": "Angle of Bank Lines", "value": "aob"},
+                                {"label": "Negative G Envelope", "value": "negative_g"}
+                            ],
+                            value=["ps", "g", "radius", "aob"],
+                            labelStyle={"display": "block"},
+                            className="checklist mb-3"
+                        ),
+                        html.Div([
+                            html.Label("Engine Failure Simulation", className="input-label"),
+                            dcc.Checklist(
+                                id="oei-toggle",
+                                options=[{"label": "Simulate One Engine Inoperative", "value": "enabled"}],
+                                value=[],
+                                style={"margin-bottom": "5px"},
+                            )
+                        ], id="oei-container", className="mb-3"),
+                        # OEI toggle (Simulate One Engine Inoperative)
+                        html.Div(id="oei-container", className="mb-3"),
+
+                        # Dynamic Vmc / Vyse Checklist (conditionally shown)
+                        html.Div([
+                            dcc.Checklist(
+                                id="multi-engine-toggle-options",
+                                options=[
+                                    {"label": "Dynamic Vmc", "value": "vmca"},
+                                    {"label": "Dynamic Vyse", "value": "dynamic_vyse"}
+                                ],
+                                value=[],
+                                labelStyle={"display": "block"}
+                            )
+                        ], id="multi-engine-toggles", style={"display": "none"}, className="mb-3"),
+
+                        
+                        # === Prop Condition (only for Dynamic Vmc) ===
+                        html.Div([
+                            html.Label("Propeller Condition", className="input-label"),
+                            dcc.RadioItems(
+                                id="prop-condition",
+                                options=[
+                                    {"label": "Feathered", "value": "feathered"},
+                                    {"label": "Windmilling", "value": "windmilling"}                                    
+                                ],
+                                value="feathered",
+                                labelStyle={"display": "inline-block", "margin-right": "10px"}
+                            )
+                        ], id="prop-condition-container", style={"display": "none"})
+                    ])
+                ], className="mb-4"),
+
+                # Maneuver Builder
+                dbc.Card([
+                    dbc.CardHeader("Maneuver Overlays"),
+                    dbc.CardBody([
+                        dbc.Row([
+                            dbc.Col([
+                                html.Label("Maneuver", className="input-label"),
+                                dcc.Dropdown(
+                                    id="maneuver-select", className="dropdown",
+                                    options=[
+                                        {"label": "Steep Turn", "value": "steep_turn"},
+                                        {"label": "Chandelle", "value": "chandelle"}
+                                    ],
+                                    placeholder="Select a Maneuver",
+                                    style={"width": "100%"}
+                                )
+                            ])
+                        ], className="mb-3"),
+
+                        dbc.Row([
+                            dbc.Col(html.Div(id="maneuver-options-container"))
+                        ])
+                    ])
+                ], className="mb-4"),
+
+                # Export
+                dbc.Card([
+                    dbc.CardHeader("Export"),
+                    dbc.CardBody([
+                        dbc.Button("Export as PDF", id="pdf-button", color="primary", className="me-2"),
+                        dcc.Download(id="pdf-download")
+                    ])
+                ])
+            ], className="resizable-sidebar"),
+
+            # Graph Column
+            dbc.Col([
+                dbc.Card([
+                    dbc.CardBody([
+                        html.Div([
+                            dcc.Graph(id="em-graph")
+                        ], className="graph-panel")
+                    ])
+                ]),
+                html.Div("© 2025 Nicholas Len, AEROEDGE. All rights reserved.", className="footer")
+            ], width=8, className="graph-column")
+        ],className="main-row")
+    ], className="full-height-container")
+
+dcc.Checklist(id="oei-toggle", style={"display": "none"}, options=[], value=[])
 
 # ✅ Automatically open the browser when the app starts
 def open_browser():
@@ -369,58 +412,36 @@ def update_category_dropdown(ac_name):
     options = [{"label": cat.capitalize(), "value": cat} for cat in categories]
     default = options[0]["value"] if options else None
     return options, default
-
-
-
-
+from dash import html
+from dash.exceptions import PreventUpdate
+from dash.dependencies import Input, Output
 
 @app.callback(
-    Output("oei-container", "children"),
-    Input("aircraft-select", "value")
+    Output("multi-engine-toggles", "style"),
+    Output("prop-condition-container", "style"),
+    Input("aircraft-select", "value"),
+    Input("oei-toggle", "value"),
+    Input("multi-engine-toggle-options", "value"),
+    prevent_initial_call=True
 )
- 
-def render_oei_container(ac_name):
+def update_dynamic_vmca_visibility(ac_name, oei_toggle, multi_engine_opts):
+    from dash.exceptions import PreventUpdate
+
     if not ac_name or ac_name not in aircraft_data:
         raise PreventUpdate
 
     ac = aircraft_data[ac_name]
-    if ac.get("engine_count", 1) < 2:
-        return ""
+    is_multi = ac.get("engine_count", 1) >= 2
+    oei_enabled = oei_toggle and "enabled" in oei_toggle
+    vmca_enabled = "vmca" in (multi_engine_opts or [])
 
-    return html.Div([
-        dcc.Checklist(
-            id="oei-toggle",
-            options=[{"label": "Simulate One Engine Inoperative", "value": "enabled"}],
-            value=[],
-            style={"margin-bottom": "5px"}
-        ),
-        html.Div(
-            id="prop-condition-container",
-            children=[
-                html.Label("Prop Condition"),
-                dcc.RadioItems(
-                    id="prop-condition",
-                    options=[
-                        {"label": "Feathered", "value": "feathered"},
-                        {"label": "Windmilling", "value": "windmilling"}
-                    ],
-                    value="feathered",
-                    labelStyle={"display": "inline-block", "margin-right": "10px"},
-                )
-            ],
-            style={"margin-top": "5px", "display": "none"},
-        )
-    ])
+    # Show dynamic overlays only when OEI is active
+    show_vmca_block = {"display": "block"} if is_multi and oei_enabled else {"display": "none"}
 
-@app.callback(
-    Output("prop-condition-container", "style"),
-    Input("oei-toggle", "value"),
-    prevent_initial_call=True
-)
-def toggle_prop_condition(oei_values):
-    if oei_values and "enabled" in oei_values:
-        return {"margin-top": "5px", "display": "block"}
-    return {"display": "none"}
+    # Show prop condition only when Dynamic Vmc is toggled *and* OEI is active
+    show_prop_condition = {"display": "block", "marginTop": "5px"} if is_multi and oei_enabled and vmca_enabled else {"display": "none"}
+
+    return show_vmca_block, show_prop_condition
 
 @app.callback(
     Output("engine-select", "options"),
@@ -482,18 +503,6 @@ def update_aircraft_dependent_inputs(ac_name):
         alt_marks,
         
     )
-
-@app.callback(
-    Output("multi-engine-toggles", "style"),
-    Input("aircraft-select", "value")
-)
-def toggle_dynamic_vmca_vyse(ac_name):
-    if not ac_name or ac_name not in aircraft_data:
-        raise PreventUpdate
-    ac = aircraft_data[ac_name]
-    if ac.get("engine_count", 1) >= 2:
-        return {"display": "block"}
-    return {"display": "none"}
 
 
 @app.callback(
@@ -573,7 +582,7 @@ def update_gear_dropdown(ac_name):
     Input("aircraft-select", "value"),
     Input("fuel-slider", "value"),
     Input("occupants-select", "value"),
-    Input("passenger-weight-input", "value"),    
+    Input("passenger-weight-input", "value"),
 )
 def update_total_weight(ac_name, fuel, occupants, pax_weight):
     if not ac_name or ac_name not in aircraft_data:
@@ -584,17 +593,16 @@ def update_total_weight(ac_name, fuel, occupants, pax_weight):
     fuel_weight = fuel * ac["fuel_weight_per_gal"]
     pax_weight = pax_weight or 180
     occupants = occupants or 0
-    people_weight = occupants * pax_weight  # ✅ use custom value
+    people_weight = occupants * pax_weight
     total = empty + fuel_weight + people_weight
     max_weight = ac["max_weight"]
 
     color = "darkgreen" if total <= max_weight else "red"
+
     return (
-        html.Div([
-            html.Div("Total Weight:", style={"fontSize": "12px"}),
-            html.Div(f"{int(total)} lbs", style={"fontSize": "18px", "fontWeight": "bold"})
-        ], style={"display": "inline-block", "textAlign": "center", "lineHeight": "1.1"}),
-        {"color": color}, total
+        f"{int(total)} lbs",
+        {"color": color, "fontWeight": "bold", "fontSize": "16px"},
+        total
     )
 
 from dash.exceptions import PreventUpdate
@@ -883,6 +891,15 @@ def update_graph(
     fig = go.Figure()
     weight = total_weight  # passed in directly from dcc.Store
     total_weight = weight  # ✅ ensures total_weight is defined
+
+    fig.update_layout(
+        paper_bgcolor="#f7f9fc",   # outside the plot
+        plot_bgcolor="#f7f9fc",    # inside the plotting area
+        font=dict(color="#1b1e23"),  # match your UI's text color
+        margin=dict(l=40, r=40, t=40, b=40),
+        xaxis=dict(showgrid=True),
+        yaxis=dict(showgrid=True)
+    )
     
     g = 32.174
     # --- CG Effects ---
@@ -1924,27 +1941,12 @@ def update_graph(
         # Format into title (HTML-style for multi-line)
     fig.update_layout(
         title=dict(
-            text=(
-                f"<b style='font-size:15px'>{ac_name}</b><br>"
-                f"<span style='font-size:10px; line-height:0.5'>"
-                f"Engine: {engine_name} &nbsp;|&nbsp; "
-                f"Flaps: {config} &nbsp;|&nbsp; "
-                f"Gear: {gear if gear else 'N/A'} &nbsp;|&nbsp; "
-                f"Occupants: {occupants} &nbsp;|&nbsp; "
-                f"Fuel: {fuel} gal<br>"
-                f"Power: {int(power_fraction * 100)}% &nbsp;|&nbsp; "
-                f"Pitch: {pitch_angle}° &nbsp;|&nbsp; "
-                f"Altitude: {altitude_ft} ft &nbsp;|&nbsp; "
-                f"CG: {cg:.2f}\" &nbsp;|&nbsp; "
-                f"Total Weight: {weight} lbs<br>"
-                f"{'Single Engine: YES' if oei_active else 'Single Engine: NO'}"
-                f"{' &nbsp;|&nbsp; Prop: ' + prop_mode if oei_active else ''}"
-                f"</span>"
-            ),
+            text=f"<b style='font-size:22px'>{ac_name}</b>",
             x=0.5,
-            y=0.97,
+            y=0.95,
             xanchor="center",
-            yanchor="top"
+            yanchor="top",
+            font=dict(color="#005F8C")
         ),
         margin=dict(t=100),
         hovermode="closest",
@@ -1964,6 +1966,9 @@ def update_graph(
             spikemode="across",
             spikesnap="cursor"
         ),
+        paper_bgcolor="#f7f9fc",
+        plot_bgcolor="#f7f9fc",
+        font=dict(color="#1b1e23")
     )
     # === STEEP TURN MANEUVER TRACE ===
     if aob_values and ias_values and len(aob_values) > 0 and len(ias_values) > 0:
@@ -2209,19 +2214,24 @@ def render_maneuver_options(maneuver):
         ])
     elif maneuver == "chandelle":
         return html.Div([
-            html.Div([
-                html.Label("Initial Airspeed (KIAS)"),
-                dcc.Input(
-                    id={"type": "chandelle-ias", "index": 0},
-                    type="number",
-                    value=105,
-                    min=40,
-                    max=200,
-                    step=1,
-                    style={"width": "80px", "marginRight": "15px"}
-                ),
-                html.Label("Initial Bank (°)", style={"marginLeft": "10px"}),
-                html.Div([
+            dbc.Row([
+                dbc.Col([
+                    html.Label("Initial Airspeed (KIAS)", className="input-label"),
+                    dcc.Input(
+                        id={"type": "chandelle-ias", "index": 0},
+                        type="number",
+                        value=105,
+                        min=40,
+                        max=200,
+                        step=1,
+                        style={"width": "100px"}
+                    )
+                ], width="auto")
+            ], className="mb-3"),
+
+            dbc.Row([
+                dbc.Col([
+                    html.Label("Initial Bank (°)", className="input-label"),
                     dcc.Slider(
                         id={"type": "chandelle-bank", "index": 0},
                         min=10,
@@ -2232,24 +2242,25 @@ def render_maneuver_options(maneuver):
                         tooltip={"always_visible": True},
                         included=False
                     )
-                ], style={"width": "200px", "marginLeft": "15px", "display": "inline-block"})
-            ], style={"display": "flex", "alignItems": "center"}),
+                ])
+            ], className="mb-3"),
 
-            html.Div([
-                html.Label("Show Ghost Trace"),
-                dcc.RadioItems(
-                    id={"type": "chandelle-ghost", "index": 0},
-                    options=[
-                        {"label": "Off", "value": "off"},
-                        {"label": "On", "value": "on"}
-                    ],
-                    value="on",
-                    labelStyle={"display": "inline-block", "marginRight": "15px"}
-                )
-            ], style={"marginTop": "10px"})
+            dbc.Row([
+                dbc.Col([
+                    html.Label("Show Ghost Trace", className="input-label"),
+                    dcc.RadioItems(
+                        id={"type": "chandelle-ghost", "index": 0},
+                        options=[
+                            {"label": "Off", "value": "off"},
+                            {"label": "On", "value": "on"}
+                        ],
+                        value="on",
+                        inline=True,
+                        labelStyle={"marginRight": "15px"}
+                    )
+                ])
+            ])
         ])
-
-    return None
 
 def get_summary_text(ac_name, engine_name, config, gear, occupants, fuel, total_weight, power_fraction, altitude):
     return (
@@ -2273,21 +2284,29 @@ def get_summary_text(ac_name, engine_name, config, gear, occupants, fuel, total_
     State("config-select", "value"),
     State("gear-select", "value"),
     State("occupants-select", "value"),
+    State("passenger-weight-input", "value"),
     State("fuel-slider", "value"),
     State("stored-total-weight", "data"),
     State("power-setting", "value"),
     State("altitude-slider", "value"),
+    State("pitch-angle", "value"),
+    State("oei-toggle", "value"),
+    State("prop-condition", "value"),
+    State("maneuver-select", "value"),
     prevent_initial_call=True
 )
-def generate_pdf(n_clicks, fig_data, ac_name, engine_name, config, gear, occupants, fuel, total_weight, power_fraction, altitude):
+def generate_pdf(n_clicks, fig_data, ac_name, engine_name, config, gear, occupants, pax_weight, fuel, total_weight,
+                 power_fraction, altitude, pitch, oei_toggle, prop_condition, maneuver):
     if ctx.triggered_id != "pdf-button":
         return dash.no_update
 
     fig = go.Figure(fig_data)
+    
 
-    # ✅ Add Logo (if exists)
+
+    # ✅ Add Logo (logo2.png in top-left)
     try:
-        logo_path = os.path.join("assets", "logo.png")
+        logo_path = os.path.join("assets", "logo2.png")
         if os.path.exists(logo_path):
             from PIL import Image
             logo_img = Image.open(logo_path)
@@ -2295,30 +2314,56 @@ def generate_pdf(n_clicks, fig_data, ac_name, engine_name, config, gear, occupan
                 dict(
                     source=logo_img,
                     xref="paper", yref="paper",
-                    x=0, y=1.14,
-                    sizex=0.2, sizey=0.2,
+                    x=-0.05, y=1.25,
+                    sizex=0.25, sizey=0.25,
                     xanchor="left", yanchor="top",
                     layer="above"
                 )
             )
     except Exception as e:
-        print(f"[LOGO WARNING] Failed to add logo: {e}")
+        print(f"[LOGO WARNING] Failed to add logo2.png: {e}")
 
-    # ✅ Add copyright
+    # ✅ Summary Text
+    oei_status = "YES" if oei_toggle and "enabled" in oei_toggle else "NO"
+    maneuver_text = f"Maneuver: {maneuver}" if maneuver else ""
+
+    summary_lines = [
+        f"Engine: {engine_name} | Category: {config} | Gear: {gear}",
+        f"Occupants: {occupants} x {pax_weight or 180} lbs | Fuel: {fuel} gal",
+        f"Power: {int(power_fraction * 100)}% | Altitude: {altitude} ft | Pitch: {pitch}°",
+        f"Total Weight: {int(total_weight)} lbs | OEI: {oei_status}",
+        f"Prop Condition: {prop_condition if oei_status == 'YES' else 'N/A'}",
+        maneuver_text
+    ]
+
     fig.add_annotation(
-        text="© 2024 Nicholas Len, Gherkin Aviation. All rights reserved.",
+        text="<br>".join(summary_lines),
         xref="paper", yref="paper",
-        x=1.0, y=-0.1,
+        x=0.5, y=1.01,
+        xanchor="center", yanchor="bottom",
+        showarrow=False,
+        font=dict(size=10, color="#1b1e23"),
+        align="center"
+    )
+
+    # ✅ Footer
+    fig.add_annotation(
+        text="© 2025 Nicholas Len, AEROEDGE. All rights reserved.",
+        xref="paper", yref="paper",
+        x=1, y=-0.1,
         xanchor="right", yanchor="bottom",
         showarrow=False,
-        font=dict(size=9, color="gray"),
+        font=dict(size=9, color="gray")
     )
+
+    # ✅ Clean layout margin
+    fig.update_layout(margin=dict(t=160, b=80))
 
     # ✅ Save PDF to temp and return
     with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
         pio.write_image(fig, tmp.name, format="pdf", width=1100, height=800)
-        return send_file(tmp.name)
-
+        return send_file(tmp.name, filename="EMdiagram.pdf")
+    
 # When you click "Edit / Create Aircraft"
 @app.callback(
     Output("url", "pathname"),
