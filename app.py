@@ -384,14 +384,15 @@ def desktop_layout():
                     dcc.Graph(
                         id="em-graph",
                         config={
-                            "staticPlot": True,
+                            "staticPlot": False,
                             "displaylogo": False,
                             "displayModeBar": True,
                             "modeBarButtonsToRemove": [
-                                "zoom2d", "pan2d", "select2d", "lasso2d", "zoomIn2d", "zoomOut2d",
-                                "autoScale2d", "resetScale2d", "hoverClosestCartesian", "hoverCompareCartesian",
-                                "toggleSpikelines", "drawline", "drawopenpath", "drawclosedpath",
-                                "drawcircle", "drawrect", "eraseshape"
+                                "zoom2d", "pan2d", "select2d", "lasso2d",
+                                "zoomIn2d", "zoomOut2d", "autoScale2d", "resetScale2d",
+                                "hoverCompareCartesian", "toggleSpikelines",
+                                "drawline", "drawopenpath", "drawclosedpath", "drawcircle",
+                                "drawrect", "eraseshape"
                             ]
                         },
                         className="dash-graph"
@@ -826,7 +827,7 @@ def update_aircraft_dependent_inputs(ac_name):
     fuel_marks[fuel_max] = f"{fuel_max}"
 
     # Altitude
-    ceiling = ac.get("service_ceiling_ft") or ac.get("max_altitude")
+    ceiling = ac.get("mx_altitude") or ac.get("max_altitude")
     if ceiling is None:
         ceiling = 15000
     alt_marks = {i: str(i) for i in range(0, ceiling + 1, 5000)}
@@ -1243,13 +1244,26 @@ def update_graph(
     weight = total_weight  # passed in directly from dcc.Store
     total_weight = weight  # ✅ ensures total_weight is defined
 
+    fig.add_layout_image(
+        dict(
+            source="/assets/logo2.png",
+            xref="paper", yref="paper",
+            x=0, y=1,
+            sizex=0.2, sizey=0.2,
+            xanchor="left", yanchor="top",
+            layer="above"
+        )
+    )
+
     fig.update_layout(
         paper_bgcolor="#f7f9fc",   # outside the plot
         plot_bgcolor="#f7f9fc",    # inside the plotting area
         font=dict(color="#1b1e23"),  # match your UI's text color
         margin=dict(l=40, r=40, t=40, b=40),
         xaxis=dict(showgrid=True),
-        yaxis=dict(showgrid=True)
+        yaxis=dict(showgrid=True),
+        dragmode=False,             # ✅ disables box zoom drag
+        hovermode="closest"         # ✅ enables hover tooltips
     )
     
     g = 32.174
@@ -2827,9 +2841,6 @@ def get_browser_width(_):
         Output("prop-vmax-kts", "value"),
         Output("stored-oei-performance", "data"),
         Output("max-altitude", "value"),
-        Output("power-curve-sea-level", "value"),
-        Output("power-curve-max-alt", "value"),
-        Output("power-curve-derate", "value"),
         Output("vne", "value"),
         Output("vno", "value"),
         Output("search-result", "children", allow_duplicate=True),
@@ -2910,10 +2921,12 @@ def load_aircraft_full(selected_name):
     # --- Engine Options
     stored_engine_options = []
     for eng_name, eng_info in ac.get("engine_options", {}).items():
+        power = eng_info.get("power_curve", {})
         stored_engine_options.append({
             "name": eng_name,
             "horsepower": eng_info.get("horsepower"),
-            
+            "power_curve_sea_level": power.get("sea_level_max"),
+            "power_curve_derate": power.get("derate_per_1000ft"),
         })
 
 
@@ -3043,15 +3056,11 @@ def load_aircraft_full(selected_name):
         ac.get("prop_thrust_decay", {}).get("V_max_kts"),  # prop-vmax-kts
         oei_flat,  # stored-oei-performance
         next(iter(ac.get("engine_options", {}).values()), {}).get("power_curve", {}).get("max_altitude", None),  # max-altitude
-        ac.get("engine_options", {}).get(list(ac["engine_options"].keys())[0], {}).get("power_curve", {}).get("sea_level_max"),  # power-curve-sea-level
-        ac.get("engine_options", {}).get(list(ac["engine_options"].keys())[0], {}).get("power_curve", {}).get("max_altitude"),  # power-curve-max-alt
-        ac.get("engine_options", {}).get(list(ac["engine_options"].keys())[0], {}).get("power_curve", {}).get("derate_per_1000ft"),  # power-curve-derate
         ac.get("Vne"),  # vne
         ac.get("Vno"),  # vno
         f"✅ Loaded: {selected_name}",  # search-result
     )
 
-#------ default performance value buttons----
 @app.callback(
     Output("cd0", "value", allow_duplicate=True),
     Output("oswald-efficiency", "value", allow_duplicate=True),
@@ -3061,9 +3070,6 @@ def load_aircraft_full(selected_name):
     Output("stored-engine-options", "data", allow_duplicate=True),
     Output("stored-flap-configs", "data", allow_duplicate=True),
     Output("stored-oei-performance", "data", allow_duplicate=True),
-    Output("power-curve-sea-level", "value", allow_duplicate=True),
-    Output("power-curve-max-alt", "value", allow_duplicate=True),
-    Output("power-curve-derate", "value", allow_duplicate=True),
     Output({"type": "clmax-input", "config": "clean"}, "value", allow_duplicate=True),
     Output({"type": "clmax-input", "config": "takeoff"}, "value", allow_duplicate=True),
     Output({"type": "clmax-input", "config": "landing"}, "value", allow_duplicate=True),
@@ -3073,125 +3079,100 @@ def load_aircraft_full(selected_name):
     Input("default-trainer", "n_clicks"),
     Input("default-mil-trainer", "n_clicks"),
     Input("default-experimental", "n_clicks"),
-    State("stored-engine-options", "data"),
     State("stored-flap-configs", "data"),
     State("stored-oei-performance", "data"),
     State("engine-count", "value"),
     prevent_initial_call=True
 )
-def apply_default_performance(single, multi, aero, trainer, mil, exp, engine_data, flap_data, oei_data, engine_count):
+def apply_default_performance(single, multi, aero, trainer, mil, exp, flap_data, oei_data, engine_count):
     triggered = ctx.triggered_id
 
     if triggered == "default-single":
         cd0, e, t_static, vmax, fuel_wt = 0.025, 0.80, 2.6, 160, 6.0
-        derate = {"sea_level_max": 150, "max_altitude": 12000, "derate_per_1000ft": 0.03}
+        engine = {
+            "name": "Lycoming O-320",
+            "horsepower": 150,
+            "power_curve_sea_level": 150,
+            "power_curve_derate": 0.03
+        }
         clmax = {"clean": 1.4, "takeoff": 1.7, "landing": 2.0}
 
     elif triggered == "default-multi":
         cd0, e, t_static, vmax, fuel_wt = 0.028, 0.82, 2.6, 180, 6.0
-        derate = {"sea_level_max": 440, "max_altitude": 12000, "derate_per_1000ft": 0.035}
+        engine = {
+            "name": "Lycoming TIO-540",
+            "horsepower": 220,
+            "power_curve_sea_level": 220,
+            "power_curve_derate": 0.035
+        }
         clmax = {"clean": 1.3, "takeoff": 1.6, "landing": 2.0}
 
     elif triggered == "default-aerobatic":
         cd0, e, t_static, vmax, fuel_wt = 0.030, 0.75, 2.6, 200, 6.0
-        derate = {"sea_level_max": 300, "max_altitude": 15000, "derate_per_1000ft": 0.03}
+        engine = {
+            "name": "Lycoming AEIO-360",
+            "horsepower": 200,
+            "power_curve_sea_level": 200,
+            "power_curve_derate": 0.03
+        }
         clmax = {"clean": 1.6, "takeoff": 1.8, "landing": 2.2}
 
     elif triggered == "default-trainer":
         cd0, e, t_static, vmax, fuel_wt = 0.027, 0.78, 2.6, 140, 6.0        
-        derate = {"sea_level_max": 160, "max_altitude": 12000, "derate_per_1000ft": 0.03}
+        engine = {
+            "name": "Continental O-200",
+            "horsepower": 100,
+            "power_curve_sea_level": 100,
+            "power_curve_derate": 0.03
+        }
         clmax = {"clean": 1.3, "takeoff": 1.6, "landing": 2.0}
 
     elif triggered == "default-mil-trainer":
         cd0, e, t_static, vmax, fuel_wt = 0.030, 0.72, 2.6, 300, 6.7        
-        derate = {"sea_level_max": 1100, "max_altitude": 30000, "derate_per_1000ft": 0.02}
+        engine = {
+            "name": "Pratt & Whitney R-1340",
+            "horsepower": 600,
+            "power_curve_sea_level": 600,
+            "power_curve_derate": 0.02
+        }
         clmax = {"clean": 1.4, "takeoff": 1.6, "landing": 2.2}
 
     elif triggered == "default-experimental":
         cd0, e, t_static, vmax, fuel_wt = 0.026, 0.80, 2.6, 180, 6.0        
-        derate = {"sea_level_max": 180, "max_altitude": 12000, "derate_per_1000ft": 0.03}
+        engine = {
+            "name": "Rotax 912 ULS",
+            "horsepower": 100,
+            "power_curve_sea_level": 100,
+            "power_curve_derate": 0.03
+        }
         clmax = {"clean": 1.4, "takeoff": 1.7, "landing": 2.1}
 
     else:
         raise PreventUpdate
 
-    # Auto-create at least one row if none exist
-    if not engine_data:
-        engine_data = [{
-            "name": "Default Engine",
-            "horsepower": 180,
-            "power_curve": derate,
-        }]
+    # One engine entry only
+    updated_engines = [engine]
 
-    if not flap_data:
-        flap_data = [
-            {"name": "clean", "clmax": clmax["clean"]},
-            {"name": "takeoff", "clmax": clmax["takeoff"]},
-            {"name": "landing", "clmax": clmax["landing"]}
-        ]
-
-    if triggered == "default-multi" and (not oei_data or len(oei_data) < 3):
-        oei_data = []
-        for condition in ["normal", "windmilling", "stationary"]:
-            oei_data.append({
-                "config": "clean_up",
-                "prop_condition": condition,
-                "max_power_fraction": 0.5,
-            })
-
-        # --- OEI Section (only if multi-engine) ---
-        updated_oei = []
-        if engine_count and engine_count >= 2:
-            updated_oei = [{
-                "config": "clean_up",
-                "prop_condition": "stationary",
-                "max_power_fraction": 0.5,
-            }]
-
-    # Update Engine Options
-    updated_engines = []
-    for e_data in engine_data or []:
-        e_copy = e_data.copy()
-        e_copy.setdefault("power_curve", derate)
-        updated_engines.append(e_copy)
-
-    # Update Flap Configs
-    # Defensive casting + copy
+    # Update flap configs (set clmax if not present)
     updated_flaps = []
-    for f_data in flap_data or []:
-        if isinstance(f_data, dict):
-            f_copy = f_data.copy()
-            name = f_copy.get("name")
-            if name in clmax and not f_copy.get("clmax"):
-                f_copy["clmax"] = clmax[name]
-            updated_flaps.append(f_copy)
+    for f in ["clean", "takeoff", "landing"]:
+        updated_flaps.append({"name": f, "clmax": clmax[f]})
 
-    # Update OEI Performance (only if multi-engine)
+    # OEI logic (only for multi)
     if (engine_count and engine_count >= 2) or triggered == "default-multi":
-        if not oei_data:
-            oei_data = [{
-                "config": "clean_up",
-                "prop_condition": "stationary",
-                "max_power_fraction": 0.5,
-            }]
-
-        updated_oei = []
-        for entry in oei_data:
-            oei = entry.copy()
-            if oei.get("max_power_fraction") is None:
-                oei["max_power_fraction"] = 0.5
-                condition = oei.get("prop_condition")
-            updated_oei.append(oei)
+        updated_oei = [
+            {"config": "clean_up", "prop_condition": "stationary", "max_power_fraction": 0.5},
+            {"config": "clean_up", "prop_condition": "windmilling", "max_power_fraction": 0.5},
+            {"config": "clean_up", "prop_condition": "normal", "max_power_fraction": 0.5}
+        ]
     else:
         updated_oei = dash.no_update
 
-    # Final return
     return (
         cd0, e, t_static, vmax, fuel_wt,
-        updated_engines, updated_flaps, updated_oei,
-        derate["sea_level_max"],
-        derate["max_altitude"],
-        derate["derate_per_1000ft"],
+        updated_engines,
+        updated_flaps,
+        updated_oei,
         clmax["clean"], clmax["takeoff"], clmax["landing"]
     )
 
@@ -3640,6 +3621,8 @@ def add_engine_option(n_clicks, current_engines):
     new_data.append({
         "name": "",
         "horsepower": None,
+        "power_curve_sea_level": None,
+        "power_curve_derate": 0.03,
     })
     return new_data
 
@@ -3659,7 +3642,7 @@ def render_engine_options(engine_data):
                 value=item.get("name", ""),
                 type="text",
                 placeholder="Engine Name",
-                style={"width": "200px", "marginRight": "5px"}
+                style={"width": "180px", "marginRight": "5px"}
             ),
             dcc.Input(
                 id={"type": "engine-hp", "index": idx},
@@ -3668,9 +3651,23 @@ def render_engine_options(engine_data):
                 placeholder="Horsepower",
                 style={"width": "100px", "marginRight": "5px"}
             ),
-
+            dcc.Input(
+                id={"type": "power-curve-sea-level", "index": idx},
+                value=item.get("power_curve_sea_level", ""),
+                type="number",
+                placeholder="Sea Level HP",
+                style={"width": "120px", "marginRight": "5px"}
+            ),
+            dcc.Input(
+                id={"type": "power-curve-derate", "index": idx},
+                value=item.get("power_curve_derate", 0.03),
+                type="number",
+                step="0.001",
+                placeholder="Derate / 1000 ft",
+                style={"width": "130px", "marginRight": "5px"}
+            ),
             html.Button("❌", id={"type": "remove-engine", "index": idx}, n_clicks=0)
-        ], style={"marginBottom": "10px"})
+        ], style={"marginBottom": "12px", "display": "flex", "flexWrap": "wrap"})
         for idx, item in enumerate(engine_data)
     ]
 
@@ -3678,12 +3675,13 @@ def render_engine_options(engine_data):
     Output("stored-engine-options", "data", allow_duplicate=True),
     Input({"type": "engine-name", "index": ALL}, "value"),
     Input({"type": "engine-hp", "index": ALL}, "value"),
-    Input({"type": "engine-prop", "index": ALL}, "value"),
+    Input({"type": "power-curve-sea-level", "index": ALL}, "value"),
+    Input({"type": "power-curve-derate", "index": ALL}, "value"),
     Input({"type": "remove-engine", "index": ALL}, "n_clicks"),
     State("stored-engine-options", "data"),
     prevent_initial_call=True
 )
-def update_or_remove_engines(names, hps, props, remove_clicks, current_data):
+def update_or_remove_engines(names, hps, sea_levels, derates, remove_clicks, current_data):
     triggered = ctx.triggered_id
     if current_data is None:
         return []
@@ -3693,15 +3691,17 @@ def update_or_remove_engines(names, hps, props, remove_clicks, current_data):
         if 0 <= idx < len(current_data):
             return current_data[:idx] + current_data[idx + 1:]
 
-    if not all(len(x) == len(current_data) for x in [names, hps, props]):
+    if not all(len(x) == len(current_data) for x in [names, hps, sea_levels, derates]):
         raise PreventUpdate
 
     return [
         {
             "name": n,
             "horsepower": hp,
+            "power_curve_sea_level": sea,
+            "power_curve_derate": derate
         }
-        for n, hp in zip(names, hps)
+        for n, hp, sea, derate in zip(names, hps, sea_levels, derates)
     ]
 
 
@@ -3747,9 +3747,6 @@ def update_or_remove_engines(names, hps, props, remove_clicks, current_data):
         Output("prop-vmax-kts", "value", allow_duplicate=True),
         Output("stored-oei-performance", "data", allow_duplicate=True),
         Output("max-altitude", "value", allow_duplicate=True),
-        Output("power-curve-sea-level", "value", allow_duplicate=True),
-        Output("power-curve-max-alt", "value", allow_duplicate=True),
-        Output("power-curve-derate", "value", allow_duplicate=True),
         Output("vne", "value", allow_duplicate=True),
         Output("vno", "value", allow_duplicate=True),
         Output("search-result", "children", allow_duplicate=True),
@@ -3799,9 +3796,6 @@ def clear_all_fields(n_clicks):
         None,  # prop-vmax-kts
         [],    # stored-oei-performance
         None,  # max-altitude
-        None,  # power-curve-sea-level
-        None,  # power-curve-max-alt
-        None,  # power-curve-derate
         None,  # vne
         None,  # vno
         "⬜ New aircraft ready"  # search-result.children
@@ -3944,6 +3938,7 @@ def convert_units_toggle(units,
     State({"type": "clmax-input", "config": "clean"}, "value"),
     State({"type": "clmax-input", "config": "takeoff"}, "value"),
     State({"type": "clmax-input", "config": "landing"}, "value"),
+    State("max-altitude", "value"),
     prevent_initial_call=True
 )
 def save_aircraft_to_file(
@@ -3952,7 +3947,7 @@ def save_aircraft_to_file(
     units, empty_weight, max_weight, seats, cg_fwd, cg_aft, fuel_capacity, fuel_weight,
     white_btm, white_top, green_btm, green_top, yellow_btm, yellow_top, red,
     t_static, v_max_kts, best_glide, best_glide_ratio, aircraft_type, engine_count, vne, vno, vfe_takeoff, vfe_landing, 
-    clmax_clean, clmax_takeoff, clmax_landing
+    clmax_clean, clmax_takeoff, clmax_landing, max_altitude
 ):
     if not name:
         return "❌ Aircraft name is required.", dash.no_update, dash.no_update, dash.no_update
@@ -3980,11 +3975,16 @@ def save_aircraft_to_file(
         ]
 
 
-        engine_dict = {
-            e["name"]: {
-                "horsepower": e["horsepower"],                
-            } for e in engines if e["name"]
-        }
+        engine_dict = {}
+        if engines:
+            for eng in engines:
+                engine_dict[eng.get("name", "Unnamed Engine")] = {
+                    "horsepower": eng.get("horsepower"),
+                    "power_curve": {
+                        "sea_level_max": eng.get("power_curve_sea_level"),
+                        "derate_per_1000ft": eng.get("power_curve_derate")
+                    }
+                }
 
         g_structured = {}
         for g in g_limits:
@@ -3992,6 +3992,11 @@ def save_aircraft_to_file(
             cfg = g.get("config")
             pos = g.get("positive")
             neg = g.get("negative")
+
+            # Inject global default if negative G not provided
+            if neg is None:
+                neg = g_neg  # <- From UI field "g-negative"
+
             if cat and cfg:
                 g_structured.setdefault(cat, {})[cfg] = {
                     "positive": pos,
@@ -4052,6 +4057,7 @@ def save_aircraft_to_file(
                 for s in converted_se_limits if s["limit_type"]
             },
             "engine_options": engine_dict,
+            "max_altitude": max_altitude,
             "Vne": convert_speed(vne),
             "Vno": convert_speed(vno),
             "Vfe": vfe_dict,

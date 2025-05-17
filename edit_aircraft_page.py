@@ -273,23 +273,9 @@ def edit_aircraft_layout():
     ], className="mb-4"),
 
     html.Div([
-        html.H3("🛫 Engine Options / HP per Engine", className="input-label"),
+        html.H3("🛫 Engine Options / HP / Power Curves", className="input-label"),
         html.Div(id="engine-options-container"),
         html.Button("➕ Add Engine Option", id="add-engine-option", n_clicks=0, className="green-button mt-2")
-    ], className="mb-4"),
-
-    html.Div([
-        html.Label("🛫 Power Curve", className="input-label"),
-        html.Div([
-            html.Label("Sea Level Max HP", className="inline-label", style={"width": "180px"}),
-            dcc.Input(id="power-curve-sea-level", type="number", placeholder="e.g. 180", className="input-small", style={"marginRight": "20px"}),
-
-            html.Label("Max Altitude (ft)", className="inline-label", style={"width": "180px"}),
-            dcc.Input(id="power-curve-max-alt", type="number", placeholder="e.g. 12000", className="input-small", style={"marginRight": "20px"}),
-
-            html.Label("Derate per 1000 ft", className="inline-label", style={"width": "180px"}),
-            dcc.Input(id="power-curve-derate", type="number", placeholder="e.g. 0.03", step=0.001, className="input-small")
-        ], style={"display": "flex", "flexWrap": "wrap", "alignItems": "center"})
     ], className="mb-4"),
 
 
