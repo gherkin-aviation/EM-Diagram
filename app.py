@@ -85,7 +85,9 @@ app.layout = html.Div([
     dcc.Store(id="last-saved-aircraft"),
     dcc.Store(id="stored-total-weight"),
     dcc.Store(id="screen-width"),
-    html.Div(id="page-content")
+    html.Div(id="page-content"),
+    dcc.Download(id="download-aircraft")
+    
 ])
 
 # Define clientside JS callback to detect screen width
@@ -129,13 +131,31 @@ def desktop_layout():
                     "marginBottom": "10px",
                     "color": "#1b1e23"  # match your theme color
                 }),
-                dbc.Button(
-                    "Edit / Create Aircraft",
-                    id="edit-aircraft-button",
-                    color="success",
-                    className="mb-3",
-                    style={"width": "200px", "fontWeight": "bold"}
-                ),
+                dbc.Row([
+                    dbc.Col(
+                        dbc.Button(
+                            "✏️ Edit / Create Aircraft",
+                            id="edit-aircraft-button",
+                            color="success",
+                            className="mb-2",
+                            style={"width": "200px", "fontWeight": "bold"}
+                        ),
+                        
+                    ),
+                    dbc.Col(
+                        dcc.Upload(
+                            id="upload-aircraft",
+                            children=dbc.Button(
+                                "📂 Load Aircraft File",
+                                color="info",
+                                style={"fontWeight": "bold"}
+                            ),
+                            multiple=False,
+                            accept=".json"
+                        ),
+                        
+                    )
+                ], className="mb-2", style={"gap": "10px"}),
 
                 # Aircraft Configuration Panel
                 dbc.Card([
@@ -313,6 +333,7 @@ def desktop_layout():
                                 id="prop-condition",
                                 options=[
                                     {"label": "Feathered", "value": "feathered"},
+                                    {"label": "Stationary", "value": "stationary"},
                                     {"label": "Windmilling", "value": "windmilling"}                                    
                                 ],
                                 value="feathered",
@@ -976,6 +997,8 @@ def calculate_vmca(
     # Prop effect: windmilling causes more drag than feathered
     if prop_condition == "windmilling":
         modifiers *= 1.05
+    elif prop_condition == "stationary":
+        modifiers *= 1.02
     elif prop_condition == "feathered":
         modifiers *= 0.95
 
@@ -992,6 +1015,10 @@ def calculate_vmca(
     modifiers *= bank_mod
 
     vmca_vals = published_vmca * modifiers
+    # Apply unit conversion if needed
+    if unit == "MPH":
+        vmca_vals = vmca_vals * 1.15078
+    
     return bank_angles_deg, vmca_vals
 
 def calculate_dynamic_vyse(
@@ -1031,13 +1058,12 @@ def calculate_dynamic_vyse(
     }
     config_factor = flap_penalty.get(flap_config, 1.00)
 
-    # --- Prop effect: windmilling = higher Vyse due to drag
     if prop_condition == "windmilling":
-        prop_factor = 1.05
+        prop_factor = 1.05  # Highest drag penalty
     elif prop_condition == "feathered":
-        prop_factor = 0.97
-    else:
-        prop_factor = 1.00
+        prop_factor = 0.95  # Most efficient
+    elif prop_condition == "stationary":
+        prop_factor = 1.02  # Midpoint — more drag than feathered, less than windmilling
 
     # --- Final dynamic Vyse
     adjusted_vyse = (
@@ -1152,12 +1178,17 @@ def update_graph(
     hp = derated_hp * power_fraction  # ✅ override earlier hp
 
     g_limit_block = ac.get("G_limits", {}).get(selected_category, {}).get(config, {})
+
     if isinstance(g_limit_block, dict):
         g_limit = g_limit_block.get("positive", 3.8)
-        g_limit_neg = g_limit_block.get("negative", -1.5)
+        neg = g_limit_block.get("negative", -1.5)
+        g_limit_neg = abs(neg) if isinstance(neg, (int, float)) else 1.5
+    elif isinstance(g_limit_block, (int, float)):
+        g_limit = g_limit_block
+        g_limit_neg = 1.5
     else:
-        g_limit = g_limit_block  # assume float
-        g_limit_neg = -1.5       # safe default
+        g_limit = 3.8
+        g_limit_neg = 1.5
 
         # --- Gear Drag & Lift Modifiers ---
     gear_drag_factor = 1.0
@@ -1185,10 +1216,9 @@ def update_graph(
 
     if oei_active and oei_data:
         hp = sea_level_max * oei_data.get("max_power_fraction", 1.0) * alt_derate
-        prop_eta = oei_data.get("prop_efficiency", engine_data["prop_efficiency"])
     else:
         hp = derated_hp * power_fraction
-        prop_eta = engine_data["prop_efficiency"]
+        
 
     # ✅ Debug log
     print("ENGINE DEBUG:", {
@@ -1198,7 +1228,6 @@ def update_graph(
         "prop_mode": prop_mode,
         "config_key": oei_config_key,
         "hp": hp,
-        "prop_eta": prop_eta
     })
     
     import re
@@ -1557,7 +1586,6 @@ def update_graph(
     Ps_masked = np.where(mask, np.nan, Ps)
 
     print(f"[Ps DEBUG] ----")
-    print(f"  Power: {hp:.1f} hp, Prop Eff: {prop_eta:.2f}")
     print(f"  Air Density: {rho:.5f} slugs/ft³")
     print(f"  CL avg: {np.nanmean(CL):.2f}, CD avg: {np.nanmean(CD):.3f}")
     print(f"  Thrust avg: {np.nanmean(T_available):.1f} lbs")
@@ -2198,7 +2226,7 @@ def update_graph(
                         ps_val = Ps_masked[i, j]
                         if np.isnan(ps_val):
                             continue
-                        if abs(ps_val - level) < 1:
+                        if np.isclose(ps_val, level, atol=2):
                             fig.add_annotation(
                                 x=ias_vals_ps_display[j] + 3,
                                 y=tr_vals_ps[i],
@@ -2215,22 +2243,27 @@ def update_graph(
         except Exception as e:
             print(f"[DEBUG] Ps toggle failed: {e}")
 
+
+    ###---Vmc published line----###
             
     if ac.get("engine_count", 1) > 1 and "enabled" in oei_toggle:
         vmca = ac.get("single_engine_limits", {}).get("Vmca", None)
         if vmca:
+            vmca_converted = convert_display_airspeed(vmca, unit)
+
             fig.add_trace(go.Scatter(
-                x=[vmca, vmca],
+                x=[vmca_converted, vmca_converted],
                 y=[0, y_max],
                 mode="lines",
-                name=f"Vmca ({vmca:.0f} KIAS)",
+                name=f"Vmca ({int(vmca_converted)} {unit})",
                 line=dict(color="red", width=2, dash="dash"),
                 hoverinfo="skip"
             ))
+
             fig.add_annotation(
-                x=vmca,
+                x=vmca_converted,
                 y=y_max * 0.90,
-                text="Vmc",
+                text="Vmca",
                 showarrow=False,
                 font=dict(size=10, color="red"),
                 bgcolor="rgba(255,255,255,0.8)",
@@ -2769,8 +2802,6 @@ def get_browser_width(_):
         Output("stored-single-engine-limits", "data"),
         Output("stored-engine-options", "data"),
         Output("engine-options-container", "children"),
-        Output("stored-other-limits", "data"),
-        Output("other-limits-container", "children"),
         Output("empty-weight", "value"),
         Output("max-weight", "value"),
         Output("best-glide", "value"),
@@ -2799,12 +2830,6 @@ def get_browser_width(_):
         Output("power-curve-sea-level", "value"),
         Output("power-curve-max-alt", "value"),
         Output("power-curve-derate", "value"),
-        Output("prop-normal-drag", "value"),
-        Output("prop-normal-eff", "value"),
-        Output("prop-wind-drag", "value"),
-        Output("prop-wind-eff", "value"),
-        Output("prop-stop-drag", "value"),
-        Output("prop-stop-eff", "value"),
         Output("vne", "value"),
         Output("vno", "value"),
         Output("search-result", "children", allow_duplicate=True),
@@ -2888,20 +2913,9 @@ def load_aircraft_full(selected_name):
         stored_engine_options.append({
             "name": eng_name,
             "horsepower": eng_info.get("horsepower"),
-            "prop_efficiency": eng_info.get("prop_efficiency")
+            
         })
 
-    stored_other_limits = []
-    other = {
-        "Vne": ac.get("Vne"),
-        "Vno": ac.get("Vno"),
-        **ac.get("Vfe", {})   # unpack Vfe into separate entries
-    }
-
-    # --- Other Limits (ONLY actual misc limits)
-    stored_other_limits = []
-    for key, val in ac.get("arcs", {}).items():
-        stored_other_limits.append({"key": f"arcs.{key}", "value": val})
 
     # --- Populate text inputs
     aircraft_name = selected_name
@@ -2941,21 +2955,7 @@ def load_aircraft_full(selected_name):
         )
     ]
 
-    # --- Populate Other Limits (Vne, Vfe, Arcs)
-    other_limits = {
-        "Vne": ac.get("Vne"),
-        "Vfe": ac.get("Vfe", {}),
-        "Vno": ac.get("Vno"),
-        "arcs": ac.get("arcs", {}),
-        
-    }
-    other_limits_fields = [
-        dcc.Textarea(
-            id="other-limits",
-            value=json.dumps(other_limits, indent=2),
-            style={"width": "400px", "height": "200px"},
-        )
-    ]
+
     
     
     # --- Flap CLmax and Vfe (Standardized)
@@ -2999,7 +2999,6 @@ def load_aircraft_full(selected_name):
                     "config_key": config_key,
                     "prop_condition": prop_condition,
                     "max_power_fraction": values.get("max_power_fraction"),
-                    "prop_efficiency": values.get("prop_efficiency")
                 })
     
     # --- Return everything
@@ -3019,8 +3018,6 @@ def load_aircraft_full(selected_name):
         stored_single_engine_limits,  # stored-single-engine-limits
         stored_engine_options,  # stored-engine-options
         engine_fields,  # engine-options-container
-        stored_other_limits,  # stored-other-limits
-        other_limits_fields,  # other-limits-container
         ac.get("empty_weight"),  # empty-weight
         ac.get("max_weight"),
         ac.get("single_engine_limits", {}).get("best_glide"),
@@ -3049,12 +3046,6 @@ def load_aircraft_full(selected_name):
         ac.get("engine_options", {}).get(list(ac["engine_options"].keys())[0], {}).get("power_curve", {}).get("sea_level_max"),  # power-curve-sea-level
         ac.get("engine_options", {}).get(list(ac["engine_options"].keys())[0], {}).get("power_curve", {}).get("max_altitude"),  # power-curve-max-alt
         ac.get("engine_options", {}).get(list(ac["engine_options"].keys())[0], {}).get("power_curve", {}).get("derate_per_1000ft"),  # power-curve-derate
-        ac.get("engine_options", {}).get(list(ac["engine_options"].keys())[0], {}).get("prop_condition_profiles", {}).get("normal", {}).get("drag_factor"),  # prop-normal-drag
-        ac.get("engine_options", {}).get(list(ac["engine_options"].keys())[0], {}).get("prop_condition_profiles", {}).get("normal", {}).get("prop_efficiency"),  # prop-normal-eff
-        ac.get("engine_options", {}).get(list(ac["engine_options"].keys())[0], {}).get("prop_condition_profiles", {}).get("windmilling", {}).get("drag_factor"),  # prop-wind-drag
-        ac.get("engine_options", {}).get(list(ac["engine_options"].keys())[0], {}).get("prop_condition_profiles", {}).get("windmilling", {}).get("prop_efficiency"),  # prop-wind-eff
-        ac.get("engine_options", {}).get(list(ac["engine_options"].keys())[0], {}).get("prop_condition_profiles", {}).get("stationary", {}).get("drag_factor", 1.1),
-        ac.get("engine_options", {}).get(list(ac["engine_options"].keys())[0], {}).get("prop_condition_profiles", {}).get("stationary", {}).get("prop_efficiency", 0.0),
         ac.get("Vne"),  # vne
         ac.get("Vno"),  # vno
         f"✅ Loaded: {selected_name}",  # search-result
@@ -3073,12 +3064,6 @@ def load_aircraft_full(selected_name):
     Output("power-curve-sea-level", "value", allow_duplicate=True),
     Output("power-curve-max-alt", "value", allow_duplicate=True),
     Output("power-curve-derate", "value", allow_duplicate=True),
-    Output("prop-normal-drag", "value", allow_duplicate=True),
-    Output("prop-normal-eff", "value", allow_duplicate=True),
-    Output("prop-wind-drag", "value", allow_duplicate=True),
-    Output("prop-wind-eff", "value", allow_duplicate=True),
-    Output("prop-stop-drag", "value", allow_duplicate=True),
-    Output("prop-stop-eff", "value", allow_duplicate=True),
     Output({"type": "clmax-input", "config": "clean"}, "value", allow_duplicate=True),
     Output({"type": "clmax-input", "config": "takeoff"}, "value", allow_duplicate=True),
     Output({"type": "clmax-input", "config": "landing"}, "value", allow_duplicate=True),
@@ -3099,61 +3084,31 @@ def apply_default_performance(single, multi, aero, trainer, mil, exp, engine_dat
 
     if triggered == "default-single":
         cd0, e, t_static, vmax, fuel_wt = 0.025, 0.80, 2.6, 160, 6.0
-        prop_profiles = {
-            "normal": {"drag_factor": 1.0, "prop_efficiency": 0.8},
-            "windmilling": {"drag_factor": 1.8, "prop_efficiency": 0.3},
-            "stationary": {"drag_factor": 1.2, "prop_efficiency": 0.0}
-        }
         derate = {"sea_level_max": 150, "max_altitude": 12000, "derate_per_1000ft": 0.03}
         clmax = {"clean": 1.4, "takeoff": 1.7, "landing": 2.0}
 
     elif triggered == "default-multi":
         cd0, e, t_static, vmax, fuel_wt = 0.028, 0.82, 2.6, 180, 6.0
-        prop_profiles = {
-            "normal": {"drag_factor": 1.0, "prop_efficiency": 0.78},
-            "windmilling": {"drag_factor": 1.6, "prop_efficiency": 0.25},
-            "stationary": {"drag_factor": 1.1, "prop_efficiency": 0.0}
-        }
         derate = {"sea_level_max": 440, "max_altitude": 12000, "derate_per_1000ft": 0.035}
         clmax = {"clean": 1.3, "takeoff": 1.6, "landing": 2.0}
 
     elif triggered == "default-aerobatic":
         cd0, e, t_static, vmax, fuel_wt = 0.030, 0.75, 2.6, 200, 6.0
-        prop_profiles = {
-            "normal": {"drag_factor": 1.0, "prop_efficiency": 0.82},
-            "windmilling": {"drag_factor": 1.7, "prop_efficiency": 0.3},
-            "stationary": {"drag_factor": 1.1, "prop_efficiency": 0.0}
-        }
         derate = {"sea_level_max": 300, "max_altitude": 15000, "derate_per_1000ft": 0.03}
         clmax = {"clean": 1.6, "takeoff": 1.8, "landing": 2.2}
 
     elif triggered == "default-trainer":
-        cd0, e, t_static, vmax, fuel_wt = 0.027, 0.78, 2.6, 140, 6.0
-        prop_profiles = {
-            "normal": {"drag_factor": 1.0, "prop_efficiency": 0.75},
-            "windmilling": {"drag_factor": 1.6, "prop_efficiency": 0.3},
-            "stationary": {"drag_factor": 1.1, "prop_efficiency": 0.0}
-        }
+        cd0, e, t_static, vmax, fuel_wt = 0.027, 0.78, 2.6, 140, 6.0        
         derate = {"sea_level_max": 160, "max_altitude": 12000, "derate_per_1000ft": 0.03}
         clmax = {"clean": 1.3, "takeoff": 1.6, "landing": 2.0}
 
     elif triggered == "default-mil-trainer":
-        cd0, e, t_static, vmax, fuel_wt = 0.030, 0.72, 2.6, 300, 6.7
-        prop_profiles = {
-            "normal": {"drag_factor": 1.0, "prop_efficiency": 0.78},
-            "windmilling": {"drag_factor": 1.6, "prop_efficiency": 0.3},
-            "stationary": {"drag_factor": 1.1, "prop_efficiency": 0.0}
-        }
+        cd0, e, t_static, vmax, fuel_wt = 0.030, 0.72, 2.6, 300, 6.7        
         derate = {"sea_level_max": 1100, "max_altitude": 30000, "derate_per_1000ft": 0.02}
         clmax = {"clean": 1.4, "takeoff": 1.6, "landing": 2.2}
 
     elif triggered == "default-experimental":
-        cd0, e, t_static, vmax, fuel_wt = 0.026, 0.80, 2.6, 180, 6.0
-        prop_profiles = {
-            "normal": {"drag_factor": 1.0, "prop_efficiency": 0.8},
-            "windmilling": {"drag_factor": 1.6, "prop_efficiency": 0.25},
-            "stationary": {"drag_factor": 1.1, "prop_efficiency": 0.0}
-        }
+        cd0, e, t_static, vmax, fuel_wt = 0.026, 0.80, 2.6, 180, 6.0        
         derate = {"sea_level_max": 180, "max_altitude": 12000, "derate_per_1000ft": 0.03}
         clmax = {"clean": 1.4, "takeoff": 1.7, "landing": 2.1}
 
@@ -3165,9 +3120,7 @@ def apply_default_performance(single, multi, aero, trainer, mil, exp, engine_dat
         engine_data = [{
             "name": "Default Engine",
             "horsepower": 180,
-            "prop_efficiency": prop_profiles["normal"]["prop_efficiency"],
             "power_curve": derate,
-            "prop_condition_profiles": prop_profiles
         }]
 
     if not flap_data:
@@ -3184,7 +3137,6 @@ def apply_default_performance(single, multi, aero, trainer, mil, exp, engine_dat
                 "config": "clean_up",
                 "prop_condition": condition,
                 "max_power_fraction": 0.5,
-                "prop_efficiency": prop_profiles[condition]["prop_efficiency"]
             })
 
         # --- OEI Section (only if multi-engine) ---
@@ -3194,26 +3146,25 @@ def apply_default_performance(single, multi, aero, trainer, mil, exp, engine_dat
                 "config": "clean_up",
                 "prop_condition": "stationary",
                 "max_power_fraction": 0.5,
-                "prop_efficiency": prop_profiles["stationary"]["prop_efficiency"]
             }]
 
     # Update Engine Options
     updated_engines = []
     for e_data in engine_data or []:
         e_copy = e_data.copy()
-        e_copy.setdefault("prop_efficiency", prop_profiles["normal"]["prop_efficiency"])
         e_copy.setdefault("power_curve", derate)
-        e_copy.setdefault("prop_condition_profiles", prop_profiles)
         updated_engines.append(e_copy)
 
     # Update Flap Configs
+    # Defensive casting + copy
     updated_flaps = []
     for f_data in flap_data or []:
-        f_copy = f_data.copy()
-        name = f_copy.get("name")
-        if name in clmax and not f_copy.get("clmax"):
-            f_copy["clmax"] = clmax[name]
-        updated_flaps.append(f_copy)
+        if isinstance(f_data, dict):
+            f_copy = f_data.copy()
+            name = f_copy.get("name")
+            if name in clmax and not f_copy.get("clmax"):
+                f_copy["clmax"] = clmax[name]
+            updated_flaps.append(f_copy)
 
     # Update OEI Performance (only if multi-engine)
     if (engine_count and engine_count >= 2) or triggered == "default-multi":
@@ -3222,7 +3173,6 @@ def apply_default_performance(single, multi, aero, trainer, mil, exp, engine_dat
                 "config": "clean_up",
                 "prop_condition": "stationary",
                 "max_power_fraction": 0.5,
-                "prop_efficiency": prop_profiles["stationary"]["prop_efficiency"]
             }]
 
         updated_oei = []
@@ -3231,7 +3181,6 @@ def apply_default_performance(single, multi, aero, trainer, mil, exp, engine_dat
             if oei.get("max_power_fraction") is None:
                 oei["max_power_fraction"] = 0.5
                 condition = oei.get("prop_condition")
-                oei["prop_efficiency"] = prop_profiles.get(condition, {}).get("prop_efficiency")
             updated_oei.append(oei)
     else:
         updated_oei = dash.no_update
@@ -3243,12 +3192,6 @@ def apply_default_performance(single, multi, aero, trainer, mil, exp, engine_dat
         derate["sea_level_max"],
         derate["max_altitude"],
         derate["derate_per_1000ft"],
-        prop_profiles["normal"]["drag_factor"],
-        prop_profiles["normal"]["prop_efficiency"],
-        prop_profiles["windmilling"]["drag_factor"],
-        prop_profiles["windmilling"]["prop_efficiency"],
-        prop_profiles["stationary"]["drag_factor"],
-        prop_profiles["stationary"]["prop_efficiency"],
         clmax["clean"], clmax["takeoff"], clmax["landing"]
     )
 
@@ -3296,12 +3239,12 @@ def render_g_limits(g_limits):
             dcc.Dropdown(
                 id={"type": "g-config", "index": idx},
                 options=[
-                    {"label": "Clean", "value": "clean"},
-                    {"label": "Takeoff", "value": "takeoff"},
-                    {"label": "Landing", "value": "landing"}
+                    {"label": "Clean/Up", "value": "clean"},
+                    {"label": "TO/APP/10-20°", "value": "takeoff"},
+                    {"label": "LDG/FULL/30-40°", "value": "landing"},
                 ],
                 value=item.get("config", "clean"),
-                style={"width": "120px", "marginRight": "10px"}
+                style={"width": "200px", "marginRight": "10px"}
             ),
             dcc.Input(
                 id={"type": "g-positive", "index": idx},
@@ -3389,8 +3332,8 @@ def render_stall_speeds(data):
 
     config_options = [
         {"label": "Clean/Up", "value": "clean"},
-        {"label": "TO/APP/10-20", "value": "takeoff"},
-        {"label": "LDG/FULL/30-40", "value": "landing"},
+        {"label": "TO/APP/10-20°", "value": "takeoff"},
+        {"label": "LDG/FULL/30-40°", "value": "landing"},
     ]
     gear_options = [
         {"label": "Gear Up", "value": "up"},
@@ -3405,7 +3348,7 @@ def render_stall_speeds(data):
                     options=config_options,
                     value=item.get("config", "clean"),
                     placeholder="Config",
-                    style={"width": "150px", "marginRight": "10px"}
+                    style={"width": "200px", "marginRight": "10px"}
                 )
             ], style={"display": "inline-block"}),
 
@@ -3509,9 +3452,9 @@ def render_single_engine_limits(data):
         {"label": "Vxse", "value": "Vxse"},
     ]
     flap_options = [
-        {"label": "Clean", "value": "clean"},
-        {"label": "Takeoff", "value": "takeoff"},
-        {"label": "Landing", "value": "landing"},
+        {"label": "Clean/Up", "value": "clean"},
+        {"label": "TO/APP/10-20°", "value": "takeoff"},
+        {"label": "LDG/FULL/30-40°", "value": "landing"},
     ]
     gear_options = [
         {"label": "Up", "value": "up"},
@@ -3531,7 +3474,7 @@ def render_single_engine_limits(data):
                 id={"type": "se-limit-flap", "index": idx},
                 options=flap_options,
                 value=item.get("flap_config", "clean"),
-                style={"width": "120px", "marginRight": "10px"}
+                style={"width": "200px", "marginRight": "10px"}
             ),
             dcc.Dropdown(
                 id={"type": "se-limit-gear", "index": idx},
@@ -3598,7 +3541,6 @@ def add_oei_entry(n_clicks, current_data):
         "config": "clean_up",
         "prop_condition": "normal",
         "max_power_fraction": None,
-        "prop_efficiency": None
     })
     return new_data
 
@@ -3612,7 +3554,7 @@ def render_oei_entries(data):
         return []
 
     prop_options = [
-        {"label": "Normal", "value": "normal"},
+        {"label": "Feathered", "value": "Feathered"},
         {"label": "Windmilling", "value": "windmilling"},
         {"label": "Stationary", "value": "stationary"}
     ]
@@ -3643,14 +3585,6 @@ def render_oei_entries(data):
                 placeholder="Power Fraction",
                 step=0.01,
                 style={"width": "140px", "marginRight": "10px"}
-            ),
-            dcc.Input(
-                id={"type": "oei-efficiency", "index": idx},
-                type="number",
-                value=item.get("prop_efficiency"),
-                placeholder="Prop Eff.",
-                step=0.01,
-                style={"width": "120px", "marginRight": "10px"}
             ),
             html.Button("❌", id={"type": "remove-oei", "index": idx}, n_clicks=0)
         ], style={"display": "flex", "alignItems": "center", "marginBottom": "10px"})
@@ -3687,9 +3621,8 @@ def update_oei_entries(configs, props, powers, effs, remove_clicks, current_data
             "config": c,
             "prop_condition": p,
             "max_power_fraction": f,
-            "prop_efficiency": e
         }
-        for c, p, f, e in zip(configs, props, powers, effs)
+        for c, p, f, in zip(configs, props, powers)
     ]
 
 # === ENGINE OPTIONS ===
@@ -3707,7 +3640,6 @@ def add_engine_option(n_clicks, current_engines):
     new_data.append({
         "name": "",
         "horsepower": None,
-        "prop_efficiency": None
     })
     return new_data
 
@@ -3736,14 +3668,7 @@ def render_engine_options(engine_data):
                 placeholder="Horsepower",
                 style={"width": "100px", "marginRight": "5px"}
             ),
-            dcc.Input(
-                id={"type": "engine-prop", "index": idx},
-                value=item.get("prop_efficiency", 0.8),
-                type="number",
-                step=0.01,
-                placeholder="Prop Efficiency",
-                style={"width": "100px", "marginRight": "5px"}
-            ),
+
             html.Button("❌", id={"type": "remove-engine", "index": idx}, n_clicks=0)
         ], style={"marginBottom": "10px"})
         for idx, item in enumerate(engine_data)
@@ -3775,87 +3700,10 @@ def update_or_remove_engines(names, hps, props, remove_clicks, current_data):
         {
             "name": n,
             "horsepower": hp,
-            "prop_efficiency": pe
         }
-        for n, hp, pe in zip(names, hps, props)
+        for n, hp in zip(names, hps)
     ]
 
-# === OTHER LIMITS ===
-
-@app.callback(
-    Output("stored-other-limits", "data", allow_duplicate=True),
-    Input("add-other-limit", "n_clicks"),
-    State("stored-other-limits", "data"),
-    prevent_initial_call=True
-)
-def add_other_limit(n_clicks, current_limits):
-    if not current_limits:
-        return [{"key": "", "value": ""}]
-    else:
-        new_data = copy.deepcopy(current_limits)
-        new_data.append({"key": "", "value": ""})
-        return new_data
-
-@app.callback(
-    Output("other-limits-container", "children", allow_duplicate=True),
-    Input("stored-other-limits", "data"),
-    prevent_initial_call=True
-)
-def render_other_limits(limit_data):
-    if limit_data is None:
-        raise PreventUpdate
-
-    return [
-        html.Div([
-            dcc.Input(
-                id={"type": "other-limit-key", "index": idx},
-                value=item.get("key", ""),
-                type="text",
-                placeholder="Limit Key",
-                style={"width": "150px", "marginRight": "5px"}
-            ),
-            dcc.Input(
-                id={"type": "other-limit-value", "index": idx},
-                value=str(item.get("value", "")),
-                type="text",
-                placeholder="Limit Value",
-                style={"width": "150px", "marginRight": "5px"}
-            ),
-            html.Button("❌", id={"type": "remove-other-limit", "index": idx}, n_clicks=0)
-        ], style={"marginBottom": "10px"})
-        for idx, item in enumerate(limit_data)
-    ]
-
-@app.callback(
-    Output("stored-other-limits", "data", allow_duplicate=True),
-    Input({"type": "other-limit-key", "index": ALL}, "value"),
-    Input({"type": "other-limit-value", "index": ALL}, "value"),
-    Input({"type": "remove-other-limit", "index": ALL}, "n_clicks"),
-    State("stored-other-limits", "data"),
-    prevent_initial_call=True
-)
-def update_or_remove_other_limits(keys, values, remove_clicks, current_data):
-    triggered = ctx.triggered_id
-    if current_data is None:
-        return []
-
-    if isinstance(triggered, dict) and triggered.get("type") == "remove-other-limit":
-        idx = triggered.get("index")
-        if 0 <= idx < len(current_data):
-            return current_data[:idx] + current_data[idx + 1:]
-
-    if len(keys) != len(current_data) or len(values) != len(current_data):
-        raise PreventUpdate
-
-    updated = []
-    for k, v in zip(keys, values):
-        try:
-            parsed = json.loads(v)
-        except:
-            parsed = v
-        updated.append({"key": k, "value": parsed})
-
-    return updated
 
 @app.callback(
     [
@@ -3874,8 +3722,6 @@ def update_or_remove_other_limits(keys, values, remove_clicks, current_data):
         Output("stored-single-engine-limits", "data", allow_duplicate=True),
         Output("stored-engine-options", "data", allow_duplicate=True),
         Output("engine-options-container", "children", allow_duplicate=True),
-        Output("stored-other-limits", "data", allow_duplicate=True),
-        Output("other-limits-container", "children", allow_duplicate=True),
         Output("empty-weight", "value", allow_duplicate=True),
         Output("max-weight", "value", allow_duplicate=True),
         Output("best-glide", "value", allow_duplicate=True),
@@ -3904,12 +3750,6 @@ def update_or_remove_other_limits(keys, values, remove_clicks, current_data):
         Output("power-curve-sea-level", "value", allow_duplicate=True),
         Output("power-curve-max-alt", "value", allow_duplicate=True),
         Output("power-curve-derate", "value", allow_duplicate=True),
-        Output("prop-normal-drag", "value", allow_duplicate=True),
-        Output("prop-normal-eff", "value", allow_duplicate=True),
-        Output("prop-wind-drag", "value", allow_duplicate=True),
-        Output("prop-wind-eff", "value", allow_duplicate=True),
-        Output("prop-stop-drag", "value", allow_duplicate=True),
-        Output("prop-stop-eff", "value", allow_duplicate=True),
         Output("vne", "value", allow_duplicate=True),
         Output("vno", "value", allow_duplicate=True),
         Output("search-result", "children", allow_duplicate=True),
@@ -3934,8 +3774,6 @@ def clear_all_fields(n_clicks):
         [],    # stored-single-engine-limits
         [],    # stored-engine-options
         [],    # engine-options-container (children)
-        [],    # stored-other-limits
-        [],    # other-limits-container (children)
         None,  # empty-weight
         None,  # max-weight
         None,  # best-glide
@@ -3964,12 +3802,6 @@ def clear_all_fields(n_clicks):
         None,  # power-curve-sea-level
         None,  # power-curve-max-alt
         None,  # power-curve-derate
-        None,  # prop-normal-drag
-        None,  # prop-normal-eff
-        None,  # prop-wind-drag
-        None,  # prop-wind-eff
-        None,  # prop-stop-drag
-        None,  # prop-stop-eff
         None,  # vne
         None,  # vno
         "⬜ New aircraft ready"  # search-result.children
@@ -4071,6 +3903,7 @@ def convert_units_toggle(units,
         Output("save-status", "children", allow_duplicate=True),
         Output("aircraft-data-store", "data", allow_duplicate=True),
         Output("last-saved-aircraft", "data", allow_duplicate=True),
+        Output("download-aircraft", "data", allow_duplicate=True),
     ],
     Input("save-aircraft-button", "n_clicks"),
     State("aircraft-name", "value"),
@@ -4083,7 +3916,6 @@ def convert_units_toggle(units,
     State("stored-stall-speeds", "data"),
     State("stored-single-engine-limits", "data"),
     State("stored-engine-options", "data"),
-    State("stored-other-limits", "data"),
     State("units-toggle", "value"),
     State("empty-weight", "value"),
     State("max-weight", "value"),
@@ -4116,14 +3948,14 @@ def convert_units_toggle(units,
 )
 def save_aircraft_to_file(
     n_clicks, name, wing_area, ar, cd0, e,
-    flaps, g_limits, stall_speeds, se_limits, engines, other_limits,
+    flaps, g_limits, stall_speeds, se_limits, engines,
     units, empty_weight, max_weight, seats, cg_fwd, cg_aft, fuel_capacity, fuel_weight,
     white_btm, white_top, green_btm, green_top, yellow_btm, yellow_top, red,
     t_static, v_max_kts, best_glide, best_glide_ratio, aircraft_type, engine_count, vne, vno, vfe_takeoff, vfe_landing, 
     clmax_clean, clmax_takeoff, clmax_landing
 ):
     if not name:
-        return "❌ Aircraft name is required.", dash.no_update, dash.no_update
+        return "❌ Aircraft name is required.", dash.no_update, dash.no_update, dash.no_update
 
     try:
         def convert_speed(val):
@@ -4147,28 +3979,10 @@ def save_aircraft_to_file(
             } for s in se_limits
         ]
 
-        converted_other = {}
-        for item in other_limits:
-            key = item.get("key")
-            val = item.get("value")
-
-            if isinstance(val, str) and val.strip() == "":
-                val = None
-            else:
-                try:
-                    val = json.loads(val)
-                except:
-                    pass
-
-            if isinstance(val, (int, float)) and key and "v" in key.lower():
-                val = convert_speed(val)
-
-            converted_other[key] = val
 
         engine_dict = {
             e["name"]: {
-                "horsepower": e["horsepower"],
-                "prop_efficiency": e["prop_efficiency"]
+                "horsepower": e["horsepower"],                
             } for e in engines if e["name"]
         }
 
@@ -4273,13 +4087,58 @@ def save_aircraft_to_file(
             json.dump(ac_dict, f, indent=2)
 
         updated = load_aircraft_data_from_folder()
-        return f"✅ Saved as {filename}", updated, name
+        return f"✅ Saved as {filename}", updated, name,dcc.send_string(json.dumps(ac_dict, indent=2), filename)
 
     except Exception as e:
-        return (f"❌ Error saving: {str(e)}", dash.no_update, dash.no_update)
+        return (f"❌ Error saving: {str(e)}", dash.no_update, dash.no_update, dash.no_update)
 
 
 from flask import send_from_directory
+
+from dash import Output, Input, State, ctx, dcc
+import json
+
+import base64
+import json
+from dash import Input, Output, State
+from dash.exceptions import PreventUpdate
+
+@app.callback(
+    [
+        Output("aircraft-data-store", "data", allow_duplicate=True),
+        Output("aircraft-select", "value", allow_duplicate=True),  # ✅ correct dropdown
+        Output("last-saved-aircraft", "data", allow_duplicate=True)
+    ],
+    Input("upload-aircraft", "contents"),
+    State("upload-aircraft", "filename"),
+    State("aircraft-data-store", "data"),
+    prevent_initial_call=True
+)
+def load_aircraft_from_upload(contents, filename, current_data):
+    if not contents or not filename:
+        raise PreventUpdate
+
+    try:
+        # Decode base64-encoded JSON string
+        content_type, content_string = contents.split(",")
+        decoded = base64.b64decode(content_string)
+        aircraft_json = json.loads(decoded.decode("utf-8"))
+
+        # Use 'name' key from JSON if present, else fallback to filename
+        name = aircraft_json.get("name") or filename.replace(".json", "").replace("_", " ").strip()
+
+        # Inject aircraft into stored dict
+        current_data = current_data or {}
+        current_data[name] = aircraft_json
+
+        print(f"[UPLOAD] Loaded aircraft: {name}")
+        return current_data, name, name
+
+    except Exception as e:
+        print(f"[UPLOAD ERROR]: {e}")
+        raise PreventUpdate
+
+
 
 @app.server.route("/robots.txt")
 def serve_robots():

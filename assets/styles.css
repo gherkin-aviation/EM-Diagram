@@ -104,7 +104,8 @@ label {
 }
 .dropdown,
 .dropdown-small {
-  max-width: 280px;
+  min-width: 240px;
+  max-width: 280px ;
   width: 100%;
 }
 .d-flex-align {
@@ -158,6 +159,7 @@ button,
   padding: 10px 20px;
   cursor: pointer;
   transition: background-color 0.2s ease;
+  margin-top: 10px;
 }
 button:hover,
 .green-button:hover,

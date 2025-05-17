@@ -56,7 +56,7 @@ def edit_aircraft_layout():
             ]),
             html.Div([
                 html.Button("New Aircraft", id="new-aircraft-button", n_clicks=0, className="green-button", style={"marginRight": "10px"}),
-                html.Button("💾 Save Aircraft", id="save-aircraft-button", n_clicks=0, className="green-button")
+                html.Button("💾 Save Aircraft", id="save-aircraft-button", n_clicks=0, className="green-button"),
             ], style={"display": "flex", "alignItems": "center", "gap": "10px"}),
             html.Div(id="search-result", style={"marginTop": "10px", "color": "green"})
         ], style={"marginBottom": "20px"}),
@@ -175,7 +175,7 @@ def edit_aircraft_layout():
     ], className="mb-3"),
 
     html.Div([
-        html.Label("Best Glide Speed (KIAS)", className="input-label"),
+        html.Label("Best Glide Speed", className="input-label"),
         dcc.Input(id="best-glide", type="number", className="input-small")
     ], className="mb-3"),
 
@@ -227,7 +227,7 @@ def edit_aircraft_layout():
     ], className="mb-4"),
 
     html.Div([
-        html.Label("🛫 Flap Configurations (Standardized)", className="input-label mb-2"),
+        html.Label("🛫 Flap Configurations", className="input-label mb-2"),
         html.Div(id="flap-configs-container", children=[
             html.Div([
                 html.Label("Clean / Up", className="inline-label", style={"width": "100px"}),
@@ -273,7 +273,7 @@ def edit_aircraft_layout():
     ], className="mb-4"),
 
     html.Div([
-        html.H3("🛫 Engine / Prop Options", className="input-label"),
+        html.H3("🛫 Engine Options / HP per Engine", className="input-label"),
         html.Div(id="engine-options-container"),
         html.Button("➕ Add Engine Option", id="add-engine-option", n_clicks=0, className="green-button mt-2")
     ], className="mb-4"),
@@ -292,30 +292,8 @@ def edit_aircraft_layout():
         ], style={"display": "flex", "flexWrap": "wrap", "alignItems": "center"})
     ], className="mb-4"),
 
-    html.Div([
-        html.Label("🛫 Prop Condition Profiles", className="input-label mb-2"),
-
-        html.Div([
-            html.Label("Normal", className="inline-label", style={"width": "80px"}),
-            dcc.Input(id="prop-normal-drag", type="number", placeholder="Drag", step=0.01, className="input-small", style={"marginRight": "10px"}),
-            dcc.Input(id="prop-normal-eff", type="number", placeholder="Eff.", step=0.01, className="input-small")
-        ], className="mb-2"),
-
-        html.Div([
-            html.Label("Windmilling", className="inline-label", style={"width": "80px"}),
-            dcc.Input(id="prop-wind-drag", type="number", placeholder="Drag", step=0.01, className="input-small", style={"marginRight": "10px"}),
-            dcc.Input(id="prop-wind-eff", type="number", placeholder="Eff.", step=0.01, className="input-small")
-        ], className="mb-2"),
-
-        html.Div([
-            html.Label("Stationary", className="inline-label", style={"width": "80px"}),
-            dcc.Input(id="prop-stop-drag", type="number", placeholder="Drag", step=0.01, className="input-small", style={"marginRight": "10px"}),
-            dcc.Input(id="prop-stop-eff", type="number", placeholder="Eff.", step=0.01, className="input-small")
-        ])
-    ], className="mb-4"),
-
 
     html.Button("💾 Save Aircraft", id="save-aircraft-button", n_clicks=0, className="green-button mt-4"),
-    html.Div(id="save-status", className="mt-2", style={"marginTop": "20px"})
+    html.Div(id="save-status", className="mt-2", style={"marginTop": "20px"}),
 
 ])
