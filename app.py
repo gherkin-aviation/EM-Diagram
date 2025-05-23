@@ -398,7 +398,9 @@ def desktop_layout():
                         className="dash-graph"
                     )
                 ], className="graph-panel"),
-                html.Div("© 2025 Nicholas Len, AEROEDGE. All rights reserved.", className="footer")
+                html.Div("© 2025 Nicholas Len, AEROEDGE. All rights reserved."
+                 " For reference and educational purposes only.",
+                 className="footer")
             ], className="graph-column")
         ],className="main-row")
     ], className="full-height-container")
@@ -957,6 +959,7 @@ def calculate_vmca(
     cg,
     cg_range,
     prop_condition,
+    unit="KIAS",
     bank_angles_deg=np.linspace(-5, 10, 50)
 ):
     """
@@ -977,6 +980,7 @@ def calculate_vmca(
     - vmca_vals: array of Vmca values in KIAS
     """
     # --- Base modifier (1.0 = no change from published)
+    
     modifiers = np.ones_like(bank_angles_deg, dtype=float)
 
     # Power effect (Vmca increases with power ~linear)
@@ -1017,6 +1021,7 @@ def calculate_vmca(
 
     vmca_vals = published_vmca * modifiers
     # Apply unit conversion if needed
+    unit=unit
     if unit == "MPH":
         vmca_vals = vmca_vals * 1.15078
     

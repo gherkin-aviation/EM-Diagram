@@ -48,7 +48,7 @@ def edit_aircraft_layout():
                 html.Label("Search Aircraft", className="input-label"),
                 dcc.Dropdown(
                     id="aircraft-search",
-                    options=[{"label": name, "value": name} for name in aircraft_data.keys()],
+                    options=[{"label": name, "value": name} for name in sorted(aircraft_data.keys())],
                     placeholder="Start typing...",
                     searchable=True,
                     className="dropdown"
