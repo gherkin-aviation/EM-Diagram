@@ -54,6 +54,9 @@ def resource_path(filename):
 app = dash.Dash(__name__, suppress_callback_exceptions=True)
 server = app.server
 
+
+
+
 app.index_string = """
 <!DOCTYPE html>
 <html>
@@ -116,7 +119,11 @@ def desktop_layout():
             # Header Row (centered banner logo inside a fixed-height header)
             html.Div([
                 html.Div([
-                    html.Img(src="/assets/logo.png", className="banner-logo")
+                    html.A(
+                        html.Img(src="/assets/logo.png", className="banner-logo"),
+                        href="https://www.flyaeroedge.com",  # or "/" if internal routing
+                        style={"textDecoration": "none"}
+                    )
                 ], className="banner-inner")
             ], className="banner-header"),
 
@@ -372,7 +379,10 @@ def desktop_layout():
                 dbc.Card([
                     dbc.CardHeader("Export"),
                     dbc.CardBody([
-                        dbc.Button("Export as PDF", id="pdf-button", color="primary", className="me-2"),
+                        html.Div([
+                            dbc.Button("Export as PDF", id="pdf-button", color="primary", className="me-2"),
+                            #dbc.Button("Export as PNG", id="export-png-btn", color="secondary")
+                        ], style={"display": "flex", "gap": "10px"}),
                         dcc.Download(id="pdf-download")
                     ])
                 ])
@@ -650,6 +660,7 @@ def mobile_layout():
                     dbc.CardHeader("Export"),
                     dbc.CardBody([
                         dbc.Button("Export as PDF", id="pdf-button", color="primary", className="me-2"),
+                        #dbc.Button("Export as PNG", id="export-png-btn", color="secondary"),
                         dcc.Download(id="pdf-download")
                     ])
                 ])
@@ -2671,6 +2682,10 @@ def get_summary_text(ac_name, engine_name, config, gear, occupants, fuel, total_
         f"Total Weight: {int(total_weight)} lbs"
     )
 
+
+
+###----Generate PDF-----####
+
 @app.callback(
     Output("pdf-download", "data"),
     Input("pdf-button", "n_clicks"),
@@ -2803,6 +2818,8 @@ def get_browser_width(_):
         return width
     except:
         return "unknown"
+
+
 
 @app.callback(
     [

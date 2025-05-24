@@ -113,10 +113,14 @@ label {
   align-items: flex-end;
   gap: 12px;
 }
+.radio-inline-group .form-check {
+  display: inline-block;
+  margin-right: 15px;
+  align-items: center;
+}
 .radio-inline-group {
   display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
+  gap: 15px;
   align-items: center;
 }
 .dash-checklist label,
