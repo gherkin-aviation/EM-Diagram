@@ -300,7 +300,7 @@ def desktop_layout():
                                 {"label": "Ps Contours", "value": "ps"},
                                 {"label": "Intermediate G Lines", "value": "g"},
                                 {"label": "Turn Radius Lines", "value": "radius"},
-                                {"label": "Angle of Bank Lines", "value": "aob"},
+                                {"label": "Angle of Bank Shading", "value": "aob"},
                                 {"label": "Negative G Envelope", "value": "negative_g"}
                             ],
                             value=["ps", "g", "radius", "aob"],
@@ -381,12 +381,26 @@ def desktop_layout():
                     dbc.CardBody([
                         html.Div([
                             dbc.Button("Export as PDF", id="pdf-button", color="primary", className="me-2"),
-                            #dbc.Button("Export as PNG", id="export-png-btn", color="secondary")
                         ], style={"display": "flex", "gap": "10px"}),
                         dcc.Download(id="pdf-download")
                     ])
-                ])
+                ]),
+                # Error Reporting
+                dbc.Card([
+                    dbc.CardBody([
+                        html.Div([
+                            dbc.Button(
+                                "Report An Issue",
+                                href="https://forms.gle/Adf1K1LquBb5T9MZA",
+                                color="danger",
+                                target="_blank",
+                                className="me-2"
+                            )
+                        ], style={"display": "flex", "gap": "10px"})
+                    ])
+                ]),
             ], xs=12, md=4, className="resizable-sidebar"),
+            
 
             # Graph Column
             dbc.Col([
@@ -420,11 +434,15 @@ dcc.Checklist(id="oei-toggle", style={"display": "none"}, options=[], value=[])
 def mobile_layout():
     return html.Div([
             # Header Row (centered banner logo inside a fixed-height header)
+        html.Div([
             html.Div([
-                html.Div([
-                    html.Img(src="/assets/logo.png", className="banner-logo")
-                ], className="banner-inner")
-            ], className="banner-header"),
+                html.A(
+                    html.Img(src="/assets/logo.png", className="banner-logo"),
+                    href="https://flyaeroedge.com",  # 🔁 replace with your main URL
+                    style={"textDecoration": "none"}
+                )
+            ], className="banner-inner")
+        ], className="banner-header"),
 
         # Two-Column Flex Layout: Sidebar + Graph
         html.Div([
@@ -444,6 +462,19 @@ def mobile_layout():
                     className="mb-3",
                     style={"width": "200px", "fontWeight": "bold"}
                 ),
+                    dbc.Col(
+                        dcc.Upload(
+                            id="upload-aircraft",
+                            children=dbc.Button(
+                                "📂 Load Aircraft File",
+                                color="info",
+                                style={"fontWeight": "bold"}
+                            ),
+                            multiple=False,
+                            accept=".json"
+                        ),
+                        
+                    ),                
 
                 # Aircraft Configuration Panel
                 dbc.Card([
@@ -581,7 +612,7 @@ def mobile_layout():
                                 {"label": "Ps Contours", "value": "ps"},
                                 {"label": "Intermediate G Lines", "value": "g"},
                                 {"label": "Turn Radius Lines", "value": "radius"},
-                                {"label": "Angle of Bank Lines", "value": "aob"},
+                                {"label": "Angle of Bank Shading", "value": "aob"},
                                 {"label": "Negative G Envelope", "value": "negative_g"}
                             ],
                             value=["ps", "g", "radius", "aob"],
@@ -660,10 +691,22 @@ def mobile_layout():
                     dbc.CardHeader("Export"),
                     dbc.CardBody([
                         dbc.Button("Export as PDF", id="pdf-button", color="primary", className="me-2"),
-                        #dbc.Button("Export as PNG", id="export-png-btn", color="secondary"),
                         dcc.Download(id="pdf-download")
                     ])
-                ])
+                ]),
+
+                # Error Reporting
+                dbc.Card([
+                    dbc.CardBody([
+                        dbc.Button(
+                            "Report An Issue",
+                            href="https://forms.gle/Adf1K1LquBb5T9MZA",
+                            color="danger",
+                            target="_blank",
+                            className="me-2"
+                        )
+                    ])
+                ]),
             ], xs=12, md=4, className="resizable-sidebar"),
 
             # Graph Column
@@ -686,7 +729,7 @@ def mobile_layout():
                     )
                 ], className="graph-panel"),
             ], className="graph-wrapper"),
-            html.Div("© 2025 Nicholas Len, AEROEDGE. All rights reserved.", className="footer")
+            html.Div("© 2025 Nicholas Len, AEROEDGE. All rights reserved. For reference and educational purposes only.", className="footer")
             
         ],className="main-row")
     ], className="full-height-container"),
