@@ -1,132 +1,84 @@
 {
-    "seats": 1,
-    "empty_weight": 1230,
-    "wing_area": 114.0,
-    "Vne": 270,
-    "Vfe": {
-        "takeoff": 100,
-        "landing": 85
+  "name": "Zivko Edge 540",
+  "type": "single_engine",
+  "engine_count": 1,
+  "wing_area": 114.0,
+  "aspect_ratio": 5.7,
+  "CD0": 0.033,
+  "e": 0.82,
+  "configuration_options": {
+    "flaps": ["clean", "takeoff", "landing"]
+  },
+  "G_limits": {
+    "normal": {
+      "clean": { "positive": 6.0, "negative": -1.5 },
+      "takeoff": { "positive": 2.0, "negative": -1.0 },
+      "landing": { "positive": 2.0, "negative": -1.0 }
     },
-    "stall_speeds": {
-        "clean": {
-            "weights": [
-                1600,
-                1750,
-                1850
-            ],
-            "speeds": [
-                63,
-                65,
-                67
-            ]
-        },
-        "takeoff": {
-            "weights": [
-                1600,
-                1750,
-                1850
-            ],
-            "speeds": [
-                61,
-                63,
-                65
-            ]
-        },
-        "landing": {
-            "weights": [
-                1600,
-                1750,
-                1850
-            ],
-            "speeds": [
-                57,
-                59,
-                61
-            ]
-        }
+    "utility": {
+      "clean": { "positive": 8.0, "negative": -1.5 },
+      "takeoff": { "positive": 2.0, "negative": -1.0 },
+      "landing": { "positive": 2.0, "negative": -1.0 }
     },
-    "CL_max": {
-        "clean": 1.7,
-        "takeoff": 1.9,
-        "landing": 2.1
+    "aerobatic": {
+      "clean": { "positive": 12.0, "negative": -5.0 },
+      "takeoff": { "positive": 0.0, "negative": 0.0 },
+      "landing": { "positive": 0.0, "negative": 0.0 }
+    }
+  },
+  "stall_speeds": {
+    "clean": {
+      "weights": [1600, 1750, 1850],
+      "speeds": [63, 65, 67]
     },
-    "G_limits": {
-        "normal": {
-            "clean": 6.0,
-            "takeoff": 2.0,
-            "landing": 2.0
-        },
-        "utility": {
-            "clean": 8.0,
-            "takeoff": 2.0,
-            "landing": 2.0
-        },
-        "aerobatic": {
-            "clean": 12.0,
-            "takeoff": 0.0,
-            "landing": 0.0
-        }
+    "takeoff": {
+      "weights": [1600, 1750, 1850],
+      "speeds": [61, 63, 65]
     },
-    "engine_options": {
-        "Lycoming AEIO-540": {
-            "horsepower": 340,
-            "prop_efficiency": 0.84
-        }
-    },
-    "fuel_capacity_gal": 48,
-    "fuel_weight_per_gal": 6.0,
-    "cg_range": [
-        78.01,
-        84.01
-    ],
-    "configuration_options": {
-        "flaps": [
-            "clean",
-            "landing"
-        ],
-        "gear": [
-            "tailwheel"
-        ],
-        "speed_brakes": [
-            "none"
-        ],
-        "cowl_flaps": [
-            "none"
-        ]
-    },
-    "max_weight": 1850,
-    "aspect_ratio": 5.7,
-    "CD0": 0.033,
-    "e": 0.82,
-    "Vno": 180,
-    "cg_effect_factor": {
-        "min_cg": 1.03,
-        "max_cg": 0.97
-    },
-    "power_curve": {
+    "landing": {
+      "weights": [1600, 1750, 1850],
+      "speeds": [57, 59, 61]
+    }
+  },
+  "single_engine_limits": {
+    "best_glide": 70,
+    "best_glide_ratio": 7.5
+  },
+  "engine_options": {
+    "Lycoming AEIO-540": {
+      "horsepower": 340,
+      "power_curve": {
         "sea_level_max": 340,
-        "max_altitude": 16000,
         "derate_per_1000ft": 0.03
-    },
-    "airspeed_arcs": {
-        "white_arc": [
-            57,
-            85
-        ],
-        "green_arc": [
-            63,
-            180
-        ],
-        "yellow_arc": [
-            180,
-            270
-        ]
-    },
-    "single_engine_limits": {
-        "Vmca": null,
-        "Vyse": null,
-        "Vxse": null
-    },
-    "engine_count": 1,
-    "service_ceiling_ft": 16000
+      }
+    }
+  },
+  "max_altitude": 16000,
+  "Vne": 270,
+  "Vno": 180,
+  "Vfe": {
+    "takeoff": 100,
+    "landing": 85
+  },
+  "CL_max": {
+    "clean": 1.7,
+    "takeoff": 1.9,
+    "landing": 2.1
+  },
+  "arcs": {
+    "white": [57, 85],
+    "green": [63, 180],
+    "yellow": [180, 270],
+    "red": 270
+  },
+  "empty_weight": 1230,
+  "max_weight": 1850,
+  "seats": 1,
+  "cg_range": [78.01, 84.01],
+  "fuel_capacity_gal": 48,
+  "fuel_weight_per_gal": 6.0,
+  "prop_thrust_decay": {
+    "T_static_factor": 2.6,
+    "V_max_kts": 270
+  }
 }

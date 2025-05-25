@@ -1,28 +1,57 @@
 {
-  "seats": 6,
-  "empty_weight": 4000,
-  "max_weight": 5500,
+  "name": "Beechcraft Baron 58",
+  "type": "multi_engine",
+  "engine_count": 2,
   "wing_area": 199.0,
   "aspect_ratio": 7.0,
   "CD0": 0.03,
   "e": 0.83,
-  "cg_range": [135.01, 146.01],
-  "cg_effect_factor": {
-    "min_cg": 1.03,
-    "max_cg": 0.97
+  "configuration_options": {
+    "flaps": ["clean", "takeoff", "landing"]
   },
-  "fuel_capacity_gal": 194,
-  "fuel_weight_per_gal": 6.0,
-  "Vne": 223,
-  "Vno": 167,
-  "Vfe": {
-    "takeoff": 152,
-    "landing": 112
-  },
-  "airspeed_arcs": {
-    "white_arc": [64, 112],
-    "green_arc": [72, 167],
-    "yellow_arc": [167, 223]
+  "G_limits": {
+    "normal": {
+      "clean": {
+        "positive": 3.8,
+        "negative": -1.5
+      },
+      "takeoff": {
+        "positive": 2.0,
+        "negative": -1.0
+      },
+      "landing": {
+        "positive": 2.0,
+        "negative": -1.0
+      }
+    },
+    "utility": {
+      "clean": {
+        "positive": 4.4,
+        "negative": -1.5
+      },
+      "takeoff": {
+        "positive": 2.0,
+        "negative": -1.0
+      },
+      "landing": {
+        "positive": 2.0,
+        "negative": -1.0
+      }
+    },
+    "aerobatic": {
+      "clean": {
+        "positive": 6.0,
+        "negative": -1.5
+      },
+      "takeoff": {
+        "positive": 0.0,
+        "negative": -1.0
+      },
+      "landing": {
+        "positive": 0.0,
+        "negative": -1.0
+      }
+    }
   },
   "stall_speeds": {
     "clean": {
@@ -38,66 +67,79 @@
       "speeds": [64, 69, 74]
     }
   },
-  "CL_max": {
-    "clean": 1.4,
-    "takeoff": 1.6,
-    "landing": 1.8
-  },
-  "G_limits": {
-    "normal": {
-      "clean": 3.8,
-      "takeoff": 2.0,
-      "landing": 2.0
+  "single_engine_limits": {
+    "Vmca": {
+      "clean_up": 76,
+      "takeoff_up": 74,
+      "landing_down": 72
     },
-    "utility": {
-      "clean": 4.4,
-      "takeoff": 2.0,
-      "landing": 2.0
+    "Vyse": {
+      "clean_up": 108,
+      "takeoff_up": 105,
+      "landing_down": 100
     },
-    "aerobatic": {
-      "clean": 6.0,
-      "takeoff": 0.0,
-      "landing": 0.0
-    }
+    "Vxse": {
+      "clean_up": 96,
+      "takeoff_up": 92,
+      "landing_down": 88
+    },
+    "best_glide": 110,
+    "best_glide_ratio": 12.2
   },
-  "engine_count": 2,
   "engine_options": {
-    "Continental IO-550-C (x2)": {
-      "horsepower": 600,
-      "prop_efficiency": 0.82,
+    "Continental IO-550-C": {
+      "horsepower": 300,
       "power_curve": {
-        "sea_level_max": 600,
-        "max_altitude": 20000,
+        "sea_level_max": 300,
         "derate_per_1000ft": 0.03
       },
       "oei_performance": {
         "clean_up": {
           "feathered": {
             "max_power_fraction": 0.5,
-            "prop_efficiency": 0.75,
             "best_glide_speed_kias": 110,
             "rate_of_climb_fpm": 270
           },
           "windmilling": {
             "max_power_fraction": 0.5,
-            "prop_efficiency": 0.55,
             "best_glide_speed_kias": 105,
             "rate_of_climb_fpm": 190
+          },
+          "stationary": {
+            "max_power_fraction": 0.5,
+            "best_glide_speed_kias": 100,
+            "rate_of_climb_fpm": 130
           }
         }
       }
     }
   },
-  "single_engine_limits": {
-    "Vmca": 76,
-    "Vyse": 108,
-    "Vxse": 96
+  "max_altitude": 20000,
+  "Vne": 223,
+  "Vno": 167,
+  "Vfe": {
+    "takeoff": 152,
+    "landing": 112
   },
-  "configuration_options": {
-    "flaps": ["clean", "takeoff", "landing"],
-    "gear": ["retractable"],
-    "speed_brakes": ["none"],
-    "cowl_flaps": ["open", "closed"]
+  "CL_max": {
+    "clean": 1.4,
+    "takeoff": 1.6,
+    "landing": 1.8
   },
-  "service_ceiling_ft": 20000
+  "arcs": {
+    "white": [64, 112],
+    "green": [72, 167],
+    "yellow": [167, 223],
+    "red": 223
+  },
+  "empty_weight": 4000,
+  "max_weight": 5500,
+  "seats": 6,
+  "cg_range": [135.01, 146.01],
+  "fuel_capacity_gal": 194,
+  "fuel_weight_per_gal": 6.0,
+  "prop_thrust_decay": {
+    "T_static_factor": 2.6,
+    "V_max_kts": 223
+  }
 }

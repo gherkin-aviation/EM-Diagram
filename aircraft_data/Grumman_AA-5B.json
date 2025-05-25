@@ -1,133 +1,84 @@
 {
-    "seats": 4,
-    "empty_weight": 1460,
-    "max_weight": 2400,
-    "wing_area": 143.0,
-    "aspect_ratio": 7.1,
-    "Vne": 190,
-    "Vno": 143,
-    "Vfe": {
-        "takeoff": 103,
-        "landing": 96
+  "name": "Grumman AA-5B",
+  "type": "single_engine",
+  "engine_count": 1,
+  "wing_area": 143.0,
+  "aspect_ratio": 7.1,
+  "CD0": 0.028,
+  "e": 0.82,
+  "configuration_options": {
+    "flaps": ["clean", "takeoff", "landing"]
+  },
+  "G_limits": {
+    "normal": {
+      "clean": { "positive": 3.8, "negative": -1.5 },
+      "takeoff": { "positive": 2.0, "negative": -1.0 },
+      "landing": { "positive": 2.0, "negative": -1.0 }
     },
-    "stall_speeds": {
-        "clean": {
-            "weights": [
-                1800,
-                2100,
-                2400
-            ],
-            "speeds": [
-                54,
-                57,
-                61
-            ]
-        },
-        "takeoff": {
-            "weights": [
-                1800,
-                2100,
-                2400
-            ],
-            "speeds": [
-                52,
-                55,
-                59
-            ]
-        },
-        "landing": {
-            "weights": [
-                1800,
-                2100,
-                2400
-            ],
-            "speeds": [
-                48,
-                51,
-                55
-            ]
-        }
+    "utility": {
+      "clean": { "positive": 4.4, "negative": -1.5 },
+      "takeoff": { "positive": 2.2, "negative": -1.0 },
+      "landing": { "positive": 2.2, "negative": -1.0 }
     },
-    "CL_max": {
-        "clean": 1.4,
-        "takeoff": 1.6,
-        "landing": 1.8
+    "aerobatic": {
+      "clean": { "positive": 6.0, "negative": -1.5 },
+      "takeoff": { "positive": 0.0, "negative": -1.0 },
+      "landing": { "positive": 0.0, "negative": -1.0 }
+    }
+  },
+  "stall_speeds": {
+    "clean": {
+      "weights": [1800, 2100, 2400],
+      "speeds": [54, 57, 61]
     },
-    "G_limits": {
-        "normal": {
-            "clean": 3.8,
-            "takeoff": 2.0,
-            "landing": 2.0
-        },
-        "utility": {
-            "clean": 4.4,
-            "takeoff": 2.2,
-            "landing": 2.2
-        },
-        "aerobatic": {
-            "clean": 6.0,
-            "takeoff": 0.0,
-            "landing": 0.0
-        }
+    "takeoff": {
+      "weights": [1800, 2100, 2400],
+      "speeds": [52, 55, 59]
     },
-    "engine_options": {
-        "Lycoming O-360-A4K": {
-            "horsepower": 180,
-            "prop_efficiency": 0.84
-        }
-    },
-    "fuel_capacity_gal": 52,
-    "fuel_weight_per_gal": 6.0,
-    "cg_range": [
-        9.01,
-        15.5
-    ],
-    "configuration_options": {
-        "flaps": [
-            "clean",
-            "takeoff",
-            "landing"
-        ],
-        "gear": [
-            "fixed"
-        ],
-        "speed_brakes": [
-            "none"
-        ],
-        "cowl_flaps": [
-            "none"
-        ]
-    },
-    "CD0": 0.028,
-    "e": 0.82,
-    "cg_effect_factor": {
-        "min_cg": 1.03,
-        "max_cg": 0.97
-    },
-    "power_curve": {
+    "landing": {
+      "weights": [1800, 2100, 2400],
+      "speeds": [48, 51, 55]
+    }
+  },
+  "single_engine_limits": {
+    "best_glide": 72,
+    "best_glide_ratio": 9.2
+  },
+  "engine_options": {
+    "Lycoming O-360-A4K": {
+      "horsepower": 180,
+      "power_curve": {
         "sea_level_max": 180,
-        "max_altitude": 14000,
         "derate_per_1000ft": 0.03
-    },
-    "airspeed_arcs": {
-        "white_arc": [
-            48,
-            96
-        ],
-        "green_arc": [
-            54,
-            143
-        ],
-        "yellow_arc": [
-            143,
-            190
-        ]
-    },
-    "single_engine_limits": {
-        "Vmca": null,
-        "Vyse": null,
-        "Vxse": null
-    },
-    "engine_count": 1,
-    "service_ceiling_ft": 14000
+      }
+    }
+  },
+  "max_altitude": 14000,
+  "Vne": 190,
+  "Vno": 143,
+  "Vfe": {
+    "takeoff": 103,
+    "landing": 96
+  },
+  "CL_max": {
+    "clean": 1.4,
+    "takeoff": 1.6,
+    "landing": 1.8
+  },
+  "arcs": {
+    "white": [48, 96],
+    "green": [54, 143],
+    "yellow": [143, 190],
+    "red": 190
+  },
+  "empty_weight": 1460,
+  "max_weight": 2400,
+  "seats": 4,
+  "cg_range": [9.01, 15.5],
+  "fuel_capacity_gal": 52,
+  "fuel_weight_per_gal": 6.0,
+  "prop_thrust_decay": {
+    "T_static_factor": 2.6,
+    "V_max_kts": 190
+  }
 }

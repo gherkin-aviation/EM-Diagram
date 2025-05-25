@@ -1,128 +1,84 @@
 {
-    "seats": 4,
-    "empty_weight": 1320,
-    "wing_area": 213,
-    "Vne": 162,
-    "Vfe": {
-        "takeoff": 110,
-        "landing": 95
+  "name": "Stinson 108",
+  "type": "single_engine",
+  "engine_count": 1,
+  "wing_area": 213,
+  "aspect_ratio": 6.5,
+  "CD0": 0.035,
+  "e": 0.78,
+  "configuration_options": {
+    "flaps": ["clean", "takeoff", "landing"]
+  },
+  "G_limits": {
+    "normal": {
+      "clean": { "positive": 3.8, "negative": -1.5 },
+      "takeoff": { "positive": 2.0, "negative": -1.0 },
+      "landing": { "positive": 2.0, "negative": -1.0 }
     },
-    "stall_speeds": {
-        "clean": {
-            "weights": [
-                1500,
-                2300
-            ],
-            "speeds": [
-                48,
-                55
-            ]
-        },
-        "takeoff": {
-            "weights": [
-                1500,
-                2300
-            ],
-            "speeds": [
-                46,
-                52
-            ]
-        },
-        "landing": {
-            "weights": [
-                1500,
-                2300
-            ],
-            "speeds": [
-                43,
-                50
-            ]
-        }
+    "utility": {
+      "clean": { "positive": 4.4, "negative": -1.5 },
+      "takeoff": { "positive": 2.0, "negative": -1.0 },
+      "landing": { "positive": 2.0, "negative": -1.0 }
     },
-    "CL_max": {
-        "clean": 1.6,
-        "takeoff": 1.75,
-        "landing": 1.9
+    "aerobatic": {
+      "clean": { "positive": 6.0, "negative": -1.5 },
+      "takeoff": { "positive": 0.0, "negative": -1.0 },
+      "landing": { "positive": 0.0, "negative": -1.0 }
+    }
+  },
+  "stall_speeds": {
+    "clean": {
+      "weights": [1500, 2300],
+      "speeds": [48, 55]
     },
-    "G_limits": {
-        "normal": {
-            "clean": 3.8,
-            "takeoff": 2.0,
-            "landing": 2.0
-        },
-        "utility": {
-            "clean": 4.4,
-            "takeoff": 2.0,
-            "landing": 2.0
-        },
-        "aerobatic": {
-            "clean": 6.0,
-            "takeoff": 0.0,
-            "landing": 0.0
-        }
+    "takeoff": {
+      "weights": [1500, 2300],
+      "speeds": [46, 52]
     },
-    "engine_options": {
-        "Franklin 6A4-150-B3": {
-            "horsepower": 150,
-            "prop_efficiency": 0.78
-        }
-    },
-    "fuel_capacity_gal": 50,
-    "fuel_weight_per_gal": 6.0,
-    "cg_range": [
-        33.01,
-        42.01
-    ],
-    "configuration_options": {
-        "flaps": [
-            "clean",
-            "takeoff",
-            "landing"
-        ],
-        "gear": [
-            "fixed"
-        ],
-        "speed_brakes": [
-            "none"
-        ],
-        "cowl_flaps": [
-            "open",
-            "closed"
-        ]
-    },
-    "max_weight": 2300,
-    "aspect_ratio": 6.5,
-    "CD0": 0.035,
-    "e": 0.78,
-    "Vno": 129,
-    "cg_effect_factor": {
-        "min_cg": 1.04,
-        "max_cg": 0.97
-    },
-    "power_curve": {
+    "landing": {
+      "weights": [1500, 2300],
+      "speeds": [43, 50]
+    }
+  },
+  "single_engine_limits": {
+    "best_glide": 65,
+    "best_glide_ratio": 8.5
+  },
+  "engine_options": {
+    "Franklin 6A4-150-B3": {
+      "horsepower": 150,
+      "power_curve": {
         "sea_level_max": 150,
-        "max_altitude": 12000,
         "derate_per_1000ft": 0.03
-    },
-    "airspeed_arcs": {
-        "white_arc": [
-            43,
-            95
-        ],
-        "green_arc": [
-            48,
-            129
-        ],
-        "yellow_arc": [
-            129,
-            162
-        ]
-    },
-    "single_engine_limits": {
-        "Vmca": null,
-        "Vyse": null,
-        "Vxse": null
-    },
-    "engine_count": 1,
-    "service_ceiling_ft": 14500
+      }
+    }
+  },
+  "max_altitude": 14500,
+  "Vne": 162,
+  "Vno": 129,
+  "Vfe": {
+    "takeoff": 110,
+    "landing": 95
+  },
+  "CL_max": {
+    "clean": 1.6,
+    "takeoff": 1.75,
+    "landing": 1.9
+  },
+  "arcs": {
+    "white": [43, 95],
+    "green": [48, 129],
+    "yellow": [129, 162],
+    "red": 162
+  },
+  "empty_weight": 1320,
+  "max_weight": 2300,
+  "seats": 4,
+  "cg_range": [33.01, 42.01],
+  "fuel_capacity_gal": 50,
+  "fuel_weight_per_gal": 6.0,
+  "prop_thrust_decay": {
+    "T_static_factor": 2.6,
+    "V_max_kts": 162
+  }
 }

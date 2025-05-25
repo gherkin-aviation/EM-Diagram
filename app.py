@@ -3058,7 +3058,7 @@ def load_aircraft_full(selected_name):
     fuel_weight = ac.get("fuel_weight_per_gal")
 
     # --- Airspeed Arcs
-    arcs = ac.get("airspeed_arcs", {})
+    arcs = ac.get("arcs", {})
     white_bottom, white_top = (arcs.get("white", [None, None]) + [None, None])[:2]
     green_bottom, green_top = (arcs.get("green", [None, None]) + [None, None])[:2]
     yellow_bottom, yellow_top = (arcs.get("yellow", [None, None]) + [None, None])[:2]
@@ -3110,17 +3110,17 @@ def load_aircraft_full(selected_name):
         ac.get("CL_max", {}).get("landing"),  # clmax-input (landing)
         ac.get("fuel_capacity_gal"),  # fuel-capacity-gal
         ac.get("fuel_weight_per_gal"),  # fuel-weight-per-gal
-        ac.get("airspeed_arcs", {}).get("white", [None, None])[0],  # arc-white-bottom
-        ac.get("airspeed_arcs", {}).get("white", [None, None])[1],  # arc-white-top
-        ac.get("airspeed_arcs", {}).get("green", [None, None])[0],  # arc-green-bottom
-        ac.get("airspeed_arcs", {}).get("green", [None, None])[1],  # arc-green-top
-        ac.get("airspeed_arcs", {}).get("yellow", [None, None])[0],  # arc-yellow-bottom
-        ac.get("airspeed_arcs", {}).get("yellow", [None, None])[1],  # arc-yellow-top
-        ac.get("airspeed_arcs", {}).get("red"),  # arc-red
+        ac.get("arcs", {}).get("white", [None, None])[0],  # arc-white-bottom
+        ac.get("arcs", {}).get("white", [None, None])[1],  # arc-white-top
+        ac.get("arcs", {}).get("green", [None, None])[0],  # arc-green-bottom
+        ac.get("arcs", {}).get("green", [None, None])[1],  # arc-green-top
+        ac.get("arcs", {}).get("yellow", [None, None])[0],  # arc-yellow-bottom
+        ac.get("arcs", {}).get("yellow", [None, None])[1],  # arc-yellow-top
+        ac.get("arcs", {}).get("red"),  # arc-red
         ac.get("prop_thrust_decay", {}).get("T_static_factor"),  # prop-static-factor
         ac.get("prop_thrust_decay", {}).get("V_max_kts"),  # prop-vmax-kts
         oei_flat,  # stored-oei-performance
-        next(iter(ac.get("engine_options", {}).values()), {}).get("power_curve", {}).get("max_altitude", None),  # max-altitude
+        ac.get("max_altitude"),
         ac.get("Vne"),  # vne
         ac.get("Vno"),  # vno
         f"✅ Loaded: {selected_name}",  # search-result

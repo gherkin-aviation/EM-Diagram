@@ -1,133 +1,84 @@
 {
-    "seats": 2,
-    "empty_weight": 800,
-    "max_weight": 1260,
-    "wing_area": 142.0,
-    "aspect_ratio": 7.5,
-    "Vne": 140,
-    "Vno": 115,
-    "Vfe": {
-        "takeoff": 100,
-        "landing": 100
+  "name": "Ercoupe 415C",
+  "type": "single_engine",
+  "engine_count": 1,
+  "wing_area": 142.0,
+  "aspect_ratio": 7.5,
+  "CD0": 0.03,
+  "e": 0.75,
+  "configuration_options": {
+    "flaps": ["clean", "takeoff", "landing"]
+  },
+  "G_limits": {
+    "normal": {
+      "clean": { "positive": 3.8, "negative": -1.5 },
+      "takeoff": { "positive": 2.0, "negative": -1.0 },
+      "landing": { "positive": 2.0, "negative": -1.0 }
     },
-    "stall_speeds": {
-        "clean": {
-            "weights": [
-                1000,
-                1150,
-                1260
-            ],
-            "speeds": [
-                45,
-                48,
-                50
-            ]
-        },
-        "takeoff": {
-            "weights": [
-                1000,
-                1150,
-                1260
-            ],
-            "speeds": [
-                44,
-                47,
-                49
-            ]
-        },
-        "landing": {
-            "weights": [
-                1000,
-                1150,
-                1260
-            ],
-            "speeds": [
-                43,
-                46,
-                48
-            ]
-        }
+    "utility": {
+      "clean": { "positive": 4.4, "negative": -1.5 },
+      "takeoff": { "positive": 2.2, "negative": -1.0 },
+      "landing": { "positive": 2.2, "negative": -1.0 }
     },
-    "CL_max": {
-        "clean": 1.4,
-        "takeoff": 1.6,
-        "landing": 1.8
+    "aerobatic": {
+      "clean": { "positive": 6.0, "negative": -1.5 },
+      "takeoff": { "positive": 0.0, "negative": -1.0 },
+      "landing": { "positive": 0.0, "negative": -1.0 }
+    }
+  },
+  "stall_speeds": {
+    "clean": {
+      "weights": [1000, 1150, 1260],
+      "speeds": [45, 48, 50]
     },
-    "G_limits": {
-        "normal": {
-            "clean": 3.8,
-            "takeoff": 2.0,
-            "landing": 2.0
-        },
-        "utility": {
-            "clean": 4.4,
-            "takeoff": 2.2,
-            "landing": 2.2
-        },
-        "aerobatic": {
-            "clean": 6.0,
-            "takeoff": 0,
-            "landing": 0
-        }
+    "takeoff": {
+      "weights": [1000, 1150, 1260],
+      "speeds": [44, 47, 49]
     },
-    "engine_options": {
-        "Continental C-85-12": {
-            "horsepower": 85,
-            "prop_efficiency": 0.75
-        }
-    },
-    "fuel_capacity_gal": 24,
-    "fuel_weight_per_gal": 6.0,
-    "cg_range": [
-        16.01,
-        21.01
-    ],
-    "configuration_options": {
-        "flaps": [
-            "clean",
-            "takeoff",
-            "landing"
-        ],
-        "gear": [
-            "fixed"
-        ],
-        "speed_brakes": [
-            "none"
-        ],
-        "cowl_flaps": [
-            "none"
-        ]
-    },
-    "CD0": 0.03,
-    "e": 0.75,
-    "power_curve": {
+    "landing": {
+      "weights": [1000, 1150, 1260],
+      "speeds": [43, 46, 48]
+    }
+  },
+  "single_engine_limits": {
+    "best_glide": 60,
+    "best_glide_ratio": 9.0
+  },
+  "engine_options": {
+    "Continental C-85-12": {
+      "horsepower": 85,
+      "power_curve": {
         "sea_level_max": 85,
-        "max_altitude": 10000,
         "derate_per_1000ft": 0.03
-    },
-    "cg_effect_factor": {
-        "min_cg": 1.02,
-        "max_cg": 0.98
-    },
-    "airspeed_arcs": {
-        "white_arc": [
-            43,
-            100
-        ],
-        "green_arc": [
-            45,
-            115
-        ],
-        "yellow_arc": [
-            115,
-            140
-        ]
-    },
-    "single_engine_limits": {
-        "Vmca": null,
-        "Vyse": null,
-        "Vxse": null
-    },
-    "engine_count": 1,
-    "service_ceiling_ft": 13000
+      }
+    }
+  },
+  "max_altitude": 13000,
+  "Vne": 140,
+  "Vno": 115,
+  "Vfe": {
+    "takeoff": 100,
+    "landing": 100
+  },
+  "CL_max": {
+    "clean": 1.4,
+    "takeoff": 1.6,
+    "landing": 1.8
+  },
+  "arcs": {
+    "white": [43, 100],
+    "green": [45, 115],
+    "yellow": [115, 140],
+    "red": 140
+  },
+  "empty_weight": 800,
+  "max_weight": 1260,
+  "seats": 2,
+  "cg_range": [16.01, 21.01],
+  "fuel_capacity_gal": 24,
+  "fuel_weight_per_gal": 6.0,
+  "prop_thrust_decay": {
+    "T_static_factor": 2.6,
+    "V_max_kts": 140
+  }
 }

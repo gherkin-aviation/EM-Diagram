@@ -1,133 +1,111 @@
 {
-    "seats": 4,
-    "empty_weight": 1525,
-    "wing_area": 181.0,
-    "Vne": 179,
-    "Vfe": {
-        "takeoff": 110,
-        "landing": 103
+  "name": "Beechcraft Sundowner",
+  "type": "single_engine",
+  "engine_count": 1,
+  "wing_area": 181.0,
+  "aspect_ratio": 6.8,
+  "CD0": 0.032,
+  "e": 0.8,
+  "configuration_options": {
+    "flaps": ["clean", "takeoff", "landing"]
+  },
+  "G_limits": {
+    "normal": {
+      "clean": {
+        "positive": 3.8,
+        "negative": -1.5
+      },
+      "takeoff": {
+        "positive": 2.0,
+        "negative": -1.0
+      },
+      "landing": {
+        "positive": 2.0,
+        "negative": -1.0
+      }
     },
-    "stall_speeds": {
-        "clean": {
-            "weights": [
-                1525,
-                2200,
-                2450
-            ],
-            "speeds": [
-                54,
-                59,
-                64
-            ]
-        },
-        "takeoff": {
-            "weights": [
-                1525,
-                2200,
-                2450
-            ],
-            "speeds": [
-                52,
-                57,
-                62
-            ]
-        },
-        "landing": {
-            "weights": [
-                1525,
-                2200,
-                2450
-            ],
-            "speeds": [
-                49,
-                54,
-                59
-            ]
-        }
+    "utility": {
+      "clean": {
+        "positive": 4.4,
+        "negative": -1.5
+      },
+      "takeoff": {
+        "positive": 2.0,
+        "negative": -1.0
+      },
+      "landing": {
+        "positive": 2.0,
+        "negative": -1.0
+      }
     },
-    "CL_max": {
-        "clean": 1.5,
-        "takeoff": 1.7,
-        "landing": 1.9
+    "aerobatic": {
+      "clean": {
+        "positive": 6.0,
+        "negative": -1.5
+      },
+      "takeoff": {
+        "positive": 0.0,
+        "negative": -1.0
+      },
+      "landing": {
+        "positive": 0.0,
+        "negative": -1.0
+      }
+    }
+  },
+  "stall_speeds": {
+    "clean": {
+      "weights": [1525, 2200, 2450],
+      "speeds": [54, 59, 64]
     },
-    "G_limits": {
-        "normal": {
-            "clean": 3.8,
-            "takeoff": 2.0,
-            "landing": 2.0
-        },
-        "utility": {
-            "clean": 4.4,
-            "takeoff": 2.0,
-            "landing": 2.0
-        },
-        "aerobatic": {
-            "clean": 6.0,
-            "takeoff": 0.0,
-            "landing": 0.0
-        }
+    "takeoff": {
+      "weights": [1525, 2200, 2450],
+      "speeds": [52, 57, 62]
     },
-    "engine_options": {
-        "Lycoming O-320-E2D": {
-            "horsepower": 160,
-            "prop_efficiency": 0.8
-        }
-    },
-    "fuel_capacity_gal": 57,
-    "fuel_weight_per_gal": 6.0,
-    "cg_range": [
-        84.01,
-        91.6
-    ],
-    "configuration_options": {
-        "flaps": [
-            "clean",
-            "takeoff",
-            "landing"
-        ],
-        "gear": [
-            "fixed"
-        ],
-        "speed_brakes": [
-            "none"
-        ],
-        "cowl_flaps": [
-            "none"
-        ]
-    },
-    "max_weight": 2450,
-    "aspect_ratio": 6.8,
-    "CD0": 0.032,
-    "e": 0.8,
-    "Vno": 132,
-    "cg_effect_factor": {
-        "min_cg": 1.02,
-        "max_cg": 0.98
-    },
-    "power_curve": {
+    "landing": {
+      "weights": [1525, 2200, 2450],
+      "speeds": [49, 54, 59]
+    }
+  },
+  "single_engine_limits": {
+    "best_glide": 70,
+    "best_glide_ratio": 9.0
+  },
+  "engine_options": {
+    "Lycoming O-320-E2D": {
+      "horsepower": 160,
+      "power_curve": {
         "sea_level_max": 160,
-        "max_altitude": 14000,
         "derate_per_1000ft": 0.03
-    },
-    "airspeed_arcs": {
-        "white_arc": [
-            49,
-            103
-        ],
-        "green_arc": [
-            54,
-            132
-        ],
-        "yellow_arc": [
-            132,
-            179
-        ]
-    },
-    "single_engine_limits": {
-        "Vmca": null,
-        "Vyse": null,
-        "Vxse": null
-    },
-    "engine_count": 1,
-    "service_ceiling_ft": 13500
+      }
+    }
+  },
+  "max_altitude": 13500,
+  "Vne": 179,
+  "Vno": 132,
+  "Vfe": {
+    "takeoff": 110,
+    "landing": 103
+  },
+  "CL_max": {
+    "clean": 1.5,
+    "takeoff": 1.7,
+    "landing": 1.9
+  },
+  "arcs": {
+    "white": [49, 103],
+    "green": [54, 132],
+    "yellow": [132, 179],
+    "red": 179
+  },
+  "empty_weight": 1525,
+  "max_weight": 2450,
+  "seats": 4,
+  "cg_range": [84.01, 91.6],
+  "fuel_capacity_gal": 57,
+  "fuel_weight_per_gal": 6.0,
+  "prop_thrust_decay": {
+    "T_static_factor": 2.6,
+    "V_max_kts": 179
+  }
 }

@@ -1,133 +1,84 @@
 {
-    "seats": 2,
-    "empty_weight": 1135,
-    "wing_area": 110.0,
-    "Vne": 220,
-    "Vfe": {
-        "takeoff": 100,
-        "landing": 87
+  "name": "Van's RV-8",
+  "type": "single_engine",
+  "engine_count": 1,
+  "wing_area": 110.0,
+  "aspect_ratio": 6.3,
+  "CD0": 0.03,
+  "e": 0.84,
+  "configuration_options": {
+    "flaps": ["clean", "takeoff", "landing"]
+  },
+  "G_limits": {
+    "normal": {
+      "clean": { "positive": 6.0, "negative": -1.5 },
+      "takeoff": { "positive": 2.0, "negative": -1.0 },
+      "landing": { "positive": 2.0, "negative": -1.0 }
     },
-    "stall_speeds": {
-        "clean": {
-            "weights": [
-                1650,
-                1725,
-                1800
-            ],
-            "speeds": [
-                55,
-                56,
-                57
-            ]
-        },
-        "takeoff": {
-            "weights": [
-                1650,
-                1725,
-                1800
-            ],
-            "speeds": [
-                52,
-                53,
-                54
-            ]
-        },
-        "landing": {
-            "weights": [
-                1650,
-                1725,
-                1800
-            ],
-            "speeds": [
-                48,
-                49,
-                51
-            ]
-        }
+    "utility": {
+      "clean": { "positive": 4.4, "negative": -1.5 },
+      "takeoff": { "positive": 2.0, "negative": -1.0 },
+      "landing": { "positive": 2.0, "negative": -1.0 }
     },
-    "CL_max": {
-        "clean": 1.5,
-        "takeoff": 1.7,
-        "landing": 1.9
+    "aerobatic": {
+      "clean": { "positive": 10.0, "negative": -3.0 },
+      "takeoff": { "positive": 0.0, "negative": 0.0 },
+      "landing": { "positive": 0.0, "negative": 0.0 }
+    }
+  },
+  "stall_speeds": {
+    "clean": {
+      "weights": [1650, 1725, 1800],
+      "speeds": [55, 56, 57]
     },
-    "G_limits": {
-        "normal": {
-            "clean": 6.0,
-            "takeoff": 2.0,
-            "landing": 2.0
-        },
-        "utility": {
-            "clean": 4.4,
-            "takeoff": 2.0,
-            "landing": 2.0
-        },
-        "aerobatic": {
-            "clean": 10.0,
-            "takeoff": 0.0,
-            "landing": 0.0
-        }
+    "takeoff": {
+      "weights": [1650, 1725, 1800],
+      "speeds": [52, 53, 54]
     },
-    "engine_options": {
-        "Lycoming IO-360": {
-            "horsepower": 180,
-            "prop_efficiency": 0.85
-        }
-    },
-    "fuel_capacity_gal": 42,
-    "fuel_weight_per_gal": 6.0,
-    "cg_range": [
-        78.8,
-        86.8
-    ],
-    "configuration_options": {
-        "flaps": [
-            "clean",
-            "takeoff",
-            "landing"
-        ],
-        "gear": [
-            "tailwheel"
-        ],
-        "speed_brakes": [
-            "none"
-        ],
-        "cowl_flaps": [
-            "none"
-        ]
-    },
-    "max_weight": 1800,
-    "aspect_ratio": 6.3,
-    "CD0": 0.03,
-    "e": 0.84,
-    "Vno": 170,
-    "cg_effect_factor": {
-        "min_cg": 1.03,
-        "max_cg": 0.98
-    },
-    "power_curve": {
+    "landing": {
+      "weights": [1650, 1725, 1800],
+      "speeds": [48, 49, 51]
+    }
+  },
+  "single_engine_limits": {
+    "best_glide": 68,
+    "best_glide_ratio": 9.0
+  },
+  "engine_options": {
+    "Lycoming IO-360": {
+      "horsepower": 180,
+      "power_curve": {
         "sea_level_max": 180,
-        "max_altitude": 16000,
         "derate_per_1000ft": 0.03
-    },
-    "airspeed_arcs": {
-        "white_arc": [
-            48,
-            87
-        ],
-        "green_arc": [
-            55,
-            170
-        ],
-        "yellow_arc": [
-            170,
-            220
-        ]
-    },
-    "single_engine_limits": {
-        "Vmca": null,
-        "Vyse": null,
-        "Vxse": null
-    },
-    "engine_count": 1,
-    "service_ceiling_ft": 20000
+      }
+    }
+  },
+  "max_altitude": 20000,
+  "Vne": 220,
+  "Vno": 170,
+  "Vfe": {
+    "takeoff": 100,
+    "landing": 87
+  },
+  "CL_max": {
+    "clean": 1.5,
+    "takeoff": 1.7,
+    "landing": 1.9
+  },
+  "arcs": {
+    "white": [48, 87],
+    "green": [55, 170],
+    "yellow": [170, 220],
+    "red": 220
+  },
+  "empty_weight": 1135,
+  "max_weight": 1800,
+  "seats": 2,
+  "cg_range": [78.8, 86.8],
+  "fuel_capacity_gal": 42,
+  "fuel_weight_per_gal": 6.0,
+  "prop_thrust_decay": {
+    "T_static_factor": 2.6,
+    "V_max_kts": 220
+  }
 }

@@ -1,206 +1,152 @@
 {
-    "seats": 6,
-    "empty_weight": 3865,
-    "max_weight": 5200,
-    "wing_area": 213.0,
-    "aspect_ratio": 6.5,
-    "Vne": 197,
-    "Vno": 151,
-    "Vfe": {
-        "takeoff": 122,
-        "landing": 109
+  "name": "Piper Aztec F",
+  "type": "multi_engine",
+  "engine_count": 2,
+  "wing_area": 213.0,
+  "aspect_ratio": 6.5,
+  "CD0": 0.031,
+  "e": 0.81,
+  "configuration_options": {
+    "flaps": ["clean", "takeoff", "landing"]
+  },
+  "G_limits": {
+    "normal": {
+      "clean": { "positive": 3.8, "negative": -1.5 },
+      "takeoff": { "positive": 2.0, "negative": -1.0 },
+      "landing": { "positive": 2.0, "negative": -1.0 }
     },
-    "stall_speeds": {
-        "clean": {
-            "weights": [
-                4000,
-                4600,
-                5200
-            ],
-            "speeds": [
-                63,
-                68,
-                71
-            ]
-        },
-        "takeoff": {
-            "weights": [
-                4000,
-                4600,
-                5200
-            ],
-            "speeds": [
-                61,
-                65,
-                69
-            ]
-        },
-        "landing": {
-            "weights": [
-                4000,
-                4600,
-                5200
-            ],
-            "speeds": [
-                57,
-                61,
-                65
-            ]
-        }
+    "utility": {
+      "clean": { "positive": 4.4, "negative": -1.5 },
+      "takeoff": { "positive": 2.0, "negative": -1.0 },
+      "landing": { "positive": 2.0, "negative": -1.0 }
     },
-    "CL_max": {
-        "clean": 1.4,
-        "takeoff": 1.6,
-        "landing": 1.8
+    "aerobatic": {
+      "clean": { "positive": 6.0, "negative": -1.5 },
+      "takeoff": { "positive": 0.0, "negative": -1.0 },
+      "landing": { "positive": 0.0, "negative": -1.0 }
+    }
+  },
+  "stall_speeds": {
+    "clean": {
+      "weights": [4000, 4600, 5200],
+      "speeds": [63, 68, 71]
     },
-    "G_limits": {
-        "normal": {
-            "clean": 3.8,
-            "takeoff": 2.0,
-            "landing": 2.0
-        },
-        "utility": {
-            "clean": 4.4,
-            "takeoff": 2.0,
-            "landing": 2.0
-        },
-        "aerobatic": {
-            "clean": 6.0,
-            "takeoff": 0.0,
-            "landing": 0.0
-        }
+    "takeoff": {
+      "weights": [4000, 4600, 5200],
+      "speeds": [61, 65, 69]
     },
-    "engine_options": {
-        "Lycoming TIO-540-C1A (x2)": {
-            "horsepower": 540,
-            "prop_efficiency": 0.8,
-            "oei_performance": {
-                "clean_up": {
-                    "feathered": {
-                        "max_power_fraction": 0.5,
-                        "prop_efficiency": 0.75,
-                        "best_glide_speed_kias": 91,
-                        "rate_of_climb_fpm": 230
-                    },
-                    "windmilling": {
-                        "max_power_fraction": 0.5,
-                        "prop_efficiency": 0.55,
-                        "best_glide_speed_kias": 87,
-                        "rate_of_climb_fpm": 160
-                    }
-                },
-                "clean_down": {
-                    "feathered": {
-                        "max_power_fraction": 0.5,
-                        "prop_efficiency": 0.72,
-                        "best_glide_speed_kias": 89,
-                        "rate_of_climb_fpm": 210
-                    },
-                    "windmilling": {
-                        "max_power_fraction": 0.5,
-                        "prop_efficiency": 0.52,
-                        "best_glide_speed_kias": 84,
-                        "rate_of_climb_fpm": 140
-                    }
-                },
-                "takeoff_up": {
-                    "feathered": {
-                        "max_power_fraction": 0.5,
-                        "prop_efficiency": 0.7,
-                        "best_glide_speed_kias": 87,
-                        "rate_of_climb_fpm": 190
-                    },
-                    "windmilling": {
-                        "max_power_fraction": 0.5,
-                        "prop_efficiency": 0.5,
-                        "best_glide_speed_kias": 83,
-                        "rate_of_climb_fpm": 120
-                    }
-                },
-                "takeoff_down": {
-                    "feathered": {
-                        "max_power_fraction": 0.5,
-                        "prop_efficiency": 0.68,
-                        "best_glide_speed_kias": 85,
-                        "rate_of_climb_fpm": 170
-                    },
-                    "windmilling": {
-                        "max_power_fraction": 0.5,
-                        "prop_efficiency": 0.48,
-                        "best_glide_speed_kias": 81,
-                        "rate_of_climb_fpm": 100
-                    }
-                },
-                "landing_down": {
-                    "feathered": {
-                        "max_power_fraction": 0.5,
-                        "prop_efficiency": 0.65,
-                        "best_glide_speed_kias": 83,
-                        "rate_of_climb_fpm": 150
-                    },
-                    "windmilling": {
-                        "max_power_fraction": 0.5,
-                        "prop_efficiency": 0.45,
-                        "best_glide_speed_kias": 78,
-                        "rate_of_climb_fpm": 80
-                    }
-                }
-            }
-        }
+    "landing": {
+      "weights": [4000, 4600, 5200],
+      "speeds": [57, 61, 65]
+    }
+  },
+  "single_engine_limits": {
+    "Vmca": {
+      "clean_up": 66,
+      "takeoff_up": 64,
+      "landing_down": 62
     },
-    "fuel_capacity_gal": 144,
-    "fuel_weight_per_gal": 6.0,
-    "cg_range": [
-        135.01,
-        145.01
-    ],
-    "CD0": 0.031,
-    "e": 0.81,
-    "power_curve": {
-        "sea_level_max": 540,
-        "max_altitude": 20000,
+    "Vyse": {
+      "clean_up": 93,
+      "takeoff_up": 90,
+      "landing_down": 88
+    },
+    "Vxse": {
+      "clean_up": 82,
+      "takeoff_up": 80,
+      "landing_down": 78
+    },
+    "best_glide": 91,
+    "best_glide_ratio": 9.5
+  },
+  "engine_options": {
+    "Lycoming TIO-540-C1A": {
+      "horsepower": 270,
+      "power_curve": {
+        "sea_level_max": 270,
         "derate_per_1000ft": 0.03
-    },
-    "cg_effect_factor": {
-        "min_cg": 1.03,
-        "max_cg": 0.97
-    },
-    "airspeed_arcs": {
-        "white_arc": [
-            57,
-            109
-        ],
-        "green_arc": [
-            63,
-            151
-        ],
-        "yellow_arc": [
-            151,
-            197
-        ]
-    },
-    "single_engine_limits": {
-        "Vmca": 66,
-        "Vyse": 93,
-        "Vxse": 82
-    },
-    "configuration_options": {
-        "flaps": [
-            "clean",
-            "takeoff",
-            "landing"
-        ],
-        "gear": [
-            "retractable"
-        ],
-        "speed_brakes": [
-            "none"
-        ],
-        "cowl_flaps": [
-            "open",
-            "closed"
-        ]
-    },
-    "engine_count": 2,
-    "service_ceiling_ft": 19000
+      },
+      "oei_performance": {
+        "clean_up": {
+          "feathered": {
+            "max_power_fraction": 0.5,
+            "best_glide_speed_kias": 91,
+            "rate_of_climb_fpm": 230
+          },
+          "windmilling": {
+            "max_power_fraction": 0.5,
+            "best_glide_speed_kias": 87,
+            "rate_of_climb_fpm": 160
+          },
+          "stationary": {
+            "max_power_fraction": 0.5,
+            "best_glide_speed_kias": 85,
+            "rate_of_climb_fpm": 100
+          }
+        },
+        "takeoff_up": {
+          "feathered": {
+            "max_power_fraction": 0.5,
+            "best_glide_speed_kias": 87,
+            "rate_of_climb_fpm": 190
+          },
+          "windmilling": {
+            "max_power_fraction": 0.5,
+            "best_glide_speed_kias": 83,
+            "rate_of_climb_fpm": 120
+          },
+          "stationary": {
+            "max_power_fraction": 0.5,
+            "best_glide_speed_kias": 81,
+            "rate_of_climb_fpm": 70
+          }
+        },
+        "landing_down": {
+          "feathered": {
+            "max_power_fraction": 0.5,
+            "best_glide_speed_kias": 83,
+            "rate_of_climb_fpm": 150
+          },
+          "windmilling": {
+            "max_power_fraction": 0.5,
+            "best_glide_speed_kias": 78,
+            "rate_of_climb_fpm": 80
+          },
+          "stationary": {
+            "max_power_fraction": 0.5,
+            "best_glide_speed_kias": 76,
+            "rate_of_climb_fpm": 50
+          }
+        }
+      }
+    }
+  },
+  "max_altitude": 19000,
+  "Vne": 197,
+  "Vno": 151,
+  "Vfe": {
+    "takeoff": 122,
+    "landing": 109
+  },
+  "CL_max": {
+    "clean": 1.4,
+    "takeoff": 1.6,
+    "landing": 1.8
+  },
+  "arcs": {
+    "white": [57, 109],
+    "green": [63, 151],
+    "yellow": [151, 197],
+    "red": 197
+  },
+  "empty_weight": 3865,
+  "max_weight": 5200,
+  "seats": 6,
+  "cg_range": [135.01, 145.01],
+  "fuel_capacity_gal": 144,
+  "fuel_weight_per_gal": 6.0,
+  "prop_thrust_decay": {
+    "T_static_factor": 2.6,
+    "V_max_kts": 197
+  }
 }
