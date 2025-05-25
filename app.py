@@ -377,7 +377,7 @@ def desktop_layout():
 
                 # Export
                 dbc.Card([
-                    dbc.CardHeader("Export"),
+                    dbc.CardHeader("Export as PNG (use 📷 icon on graph)"),
                     dbc.CardBody([
                         html.Div([
                             dbc.Button("Export as PDF", id="pdf-button", color="primary", className="me-2"),
@@ -391,7 +391,7 @@ def desktop_layout():
                         html.Div([
                             dbc.Button(
                                 "Report An Issue",
-                                href="https://forms.gle/Adf1K1LquBb5T9MZA",
+                                href="https://forms.gle/1xP29PwFze5MHCTZ7",
                                 color="danger",
                                 target="_blank",
                                 className="me-2"
@@ -688,7 +688,7 @@ def mobile_layout():
 
                 # Export
                 dbc.Card([
-                    dbc.CardHeader("Export"),
+                    dbc.CardHeader("Export as PNG (use 📷 icon on graph)"),
                     dbc.CardBody([
                         dbc.Button("Export as PDF", id="pdf-button", color="primary", className="me-2"),
                         dcc.Download(id="pdf-download")
@@ -700,7 +700,7 @@ def mobile_layout():
                     dbc.CardBody([
                         dbc.Button(
                             "Report An Issue",
-                            href="https://forms.gle/Adf1K1LquBb5T9MZA",
+                            href="https://forms.gle/1xP29PwFze5MHCTZ7",
                             color="danger",
                             target="_blank",
                             className="me-2"
@@ -723,7 +723,8 @@ def mobile_layout():
                                 "autoScale2d", "resetScale2d", "hoverClosestCartesian", "hoverCompareCartesian",
                                 "toggleSpikelines", "drawline", "drawopenpath", "drawclosedpath",
                                 "drawcircle", "drawrect", "eraseshape"
-                            ]
+                            ],
+                            "modeBarButtonsToAdd": ["toImage"]
                         },
                         className="dash-graph"
                     )
