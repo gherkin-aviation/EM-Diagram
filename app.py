@@ -724,7 +724,8 @@ def mobile_layout():
                                 "toggleSpikelines", "drawline", "drawopenpath", "drawclosedpath",
                                 "drawcircle", "drawrect", "eraseshape"
                             ],
-                            "modeBarButtonsToAdd": ["toImage"]
+                            "modeBarButtonsToAdd": ["toImage"],
+                            "modeBarMode": "always"
                         },
                         className="dash-graph"
                     )
