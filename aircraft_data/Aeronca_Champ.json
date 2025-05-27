@@ -1,6 +1,7 @@
 {
   "name": "Aeronca Champ",
   "type": "single_engine",
+  "gear_type": "fixed",
   "engine_count": 1,
   "wing_area": 170,
   "aspect_ratio": 6.8,

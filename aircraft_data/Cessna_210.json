@@ -1,6 +1,7 @@
 {
   "name": "Cessna 210",
   "type": "single_engine",
+  "gear_type": "retractable",
   "engine_count": 1,
   "wing_area": 174.0,
   "aspect_ratio": 7.2,

@@ -50,6 +50,12 @@ def resource_path(filename):
         return os.path.join(sys._MEIPASS, filename)
     return filename
 
+def extract_vmca_value(ac, preferred="clean_up"):
+    vmca = ac.get("single_engine_limits", {}).get("Vmca", {})
+    if isinstance(vmca, dict):
+        return vmca.get(preferred) or next(iter(vmca.values()), None)
+    return vmca if isinstance(vmca, (int, float)) else None
+
 # ✅ Initialize Dash app
 app = dash.Dash(__name__, suppress_callback_exceptions=True)
 server = app.server
@@ -968,12 +974,23 @@ def update_gear_dropdown(ac_name):
     if not ac_name or ac_name not in aircraft_data:
         raise PreventUpdate
 
-    gear_options = aircraft_data[ac_name]["configuration_options"].get("gear", [])
-    if "retractable" in gear_options:
+    ac = aircraft_data[ac_name]
+    if ac.get("gear_type") == "retractable":
         options = [{"label": "Up", "value": "up"}, {"label": "Down", "value": "down"}]
         return options, "up"
     else:
         return [], None
+
+@app.callback(
+    Output("gear-select", "style"),
+    Input("aircraft-select", "value")
+)
+def toggle_gear_selector_visibility(ac_name):
+    if not ac_name or ac_name not in aircraft_data:
+        return {"display": "none"}
+
+    gear_type = aircraft_data[ac_name].get("gear_type", "fixed")
+    return {"display": "block"} if gear_type == "retractable" else {"display": "none"}
 
 @app.callback(
     Output("total-weight-display", "children"),
@@ -1020,42 +1037,35 @@ def calculate_vmca(
 ):
     """
     Returns Vmca values across a range of bank angles based on power, weight, CG, and prop condition.
-
-    Inputs:
-    - published_vmca: published Vmca (KIAS)
-    - power_fraction: fraction of max power used
-    - total_weight: current aircraft weight
-    - reference_weight: weight used in Vmca certification (e.g. max gross)
-    - cg: current CG value (in inches)
-    - cg_range: [forward_cg, aft_cg] (in inches)
-    - prop_condition: "feathered" or "windmilling"
-    - bank_angles_deg: np.array of bank angles from -5° to +10°
-
-    Returns:
-    - bank_angles_deg (same input array)
-    - vmca_vals: array of Vmca values in KIAS
     """
-    # --- Base modifier (1.0 = no change from published)
-    
+
+    # --- Extract usable numeric Vmca if a dict was passed ---
+    if isinstance(published_vmca, dict):
+        published_vmca = published_vmca.get("clean_up") or next(iter(published_vmca.values()), None)
+
+    if not isinstance(published_vmca, (int, float)):
+        return bank_angles_deg, np.full_like(bank_angles_deg, np.nan)
+
+    # --- Base modifier (1.0 = no change from published) ---
     modifiers = np.ones_like(bank_angles_deg, dtype=float)
 
-    # Power effect (Vmca increases with power ~linear)
+    # Power effect
     modifiers *= np.clip(0.7 + 0.3 * (power_fraction / 1.0), 0.7, 1.2)
 
-    # Weight effect (Vmca increases as weight decreases)
+    # Weight effect
     weight_factor = reference_weight / total_weight
-    modifiers *= np.clip(1.0 * weight_factor, 0.85, 1.15)
+    modifiers *= np.clip(weight_factor, 0.85, 1.15)
 
-    # CG effect: aft CG = worse yaw leverage = higher Vmca
+    # CG effect
     cg_span = cg_range[1] - cg_range[0]
     if cg_span > 0:
         cg_percent = (cg - cg_range[0]) / cg_span
-        cg_penalty = 1.0 + (0.05 * cg_percent)  # up to 5% higher at aft CG
+        cg_penalty = 1.0 + (0.05 * cg_percent)
     else:
         cg_penalty = 1.0
     modifiers *= cg_penalty
 
-    # Prop effect: windmilling causes more drag than feathered
+    # Prop condition effect
     if prop_condition == "windmilling":
         modifiers *= 1.05
     elif prop_condition == "stationary":
@@ -1063,24 +1073,24 @@ def calculate_vmca(
     elif prop_condition == "feathered":
         modifiers *= 0.95
 
-    # Bank effect (reduce Vmca at ~5° bank toward operating engine)
-    # Based on FAA data and textbooks: Vmca drops with bank up to 5°
+    # Bank angle effect
     bank_mod = np.ones_like(bank_angles_deg)
     for i, bank in enumerate(bank_angles_deg):
         if bank < 0:
-            bank_mod[i] *= 1.10  # penalty: banking away from good engine
+            bank_mod[i] *= 1.10
         elif 0 <= bank <= 5:
-            bank_mod[i] *= 1.0 - 0.04 * (bank / 5.0)  # gradual benefit up to 5°
+            bank_mod[i] *= 1.0 - 0.04 * (bank / 5.0)
         elif bank > 5:
-            bank_mod[i] *= 1.0 + 0.03 * ((bank - 5) / 5.0)  # slight penalty past 5°
+            bank_mod[i] *= 1.0 + 0.03 * ((bank - 5) / 5.0)
     modifiers *= bank_mod
 
+    # Final Vmca array
     vmca_vals = published_vmca * modifiers
-    # Apply unit conversion if needed
-    unit=unit
+
+    # Convert to MPH if needed
     if unit == "MPH":
         vmca_vals = vmca_vals * 1.15078
-    
+
     return bank_angles_deg, vmca_vals
 
 def calculate_dynamic_vyse(
@@ -2079,7 +2089,11 @@ def update_graph(
             )
     # === Dynamic Vyse Marker and Curve ===
     if "dynamic_vyse" in all_overlays and ac.get("engine_count", 1) > 1 and oei_active:
-        published_vyse = ac.get("single_engine_limits", {}).get("Vyse", 100)
+        vyse_block = ac.get("single_engine_limits", {}).get("Vyse", {})
+        if isinstance(vyse_block, dict):
+            published_vyse = vyse_block.get("clean_up") or next(iter(vyse_block.values()), 100)
+        else:
+            published_vyse = vyse_block if isinstance(vyse_block, (int, float)) else 100
         reference_weight = ac.get("max_weight", 3600)
 
         # --- Sweep bank angle to visualize how Vyse performance changes with AOB
@@ -2182,7 +2196,11 @@ def update_graph(
 
     # --- Published Vxse Line ---
     # Published Vxse (Clipped)
-        published_vxse = ac.get("single_engine_limits", {}).get("Vxse", None)
+        vxse_block = ac.get("single_engine_limits", {}).get("Vxse", {})
+        if isinstance(vxse_block, dict):
+            published_vxse = vxse_block.get("clean_up") or next(iter(vxse_block.values()), None)
+        else:
+            published_vxse = vxse_block if isinstance(vxse_block, (int, float)) else None
         if oei_active and published_vxse:
             vxse_display = convert_display_airspeed(published_vxse, unit)
 
@@ -2319,31 +2337,41 @@ def update_graph(
             print(f"[DEBUG] Ps toggle failed: {e}")
 
 
-    ###---Vmc published line----###
-            
-    if ac.get("engine_count", 1) > 1 and "enabled" in oei_toggle:
-        vmca = ac.get("single_engine_limits", {}).get("Vmca", None)
-        if vmca:
-            vmca_converted = convert_display_airspeed(vmca, unit)
+        ###---Vmc published line----###
 
-            fig.add_trace(go.Scatter(
-                x=[vmca_converted, vmca_converted],
-                y=[0, y_max],
-                mode="lines",
-                name=f"Vmca ({int(vmca_converted)} {unit})",
-                line=dict(color="red", width=2, dash="dash"),
-                hoverinfo="skip"
-            ))
+        if ac.get("engine_count", 1) > 1 and "enabled" in oei_toggle:
+            vmca = ac.get("single_engine_limits", {}).get("Vmca", None)
 
-            fig.add_annotation(
-                x=vmca_converted,
-                y=y_max * 0.90,
-                text="Vmca",
-                showarrow=False,
-                font=dict(size=10, color="red"),
-                bgcolor="rgba(255,255,255,0.8)",
-                xanchor="center"
-            )
+            # Handle new-style dict Vmca format
+            if isinstance(vmca, dict):
+                # Choose the config to display (default to "clean_up" if available)
+                selected_config = "clean_up" if "clean_up" in vmca else next(iter(vmca), None)
+                vmca_value = vmca.get(selected_config)
+            else:
+                # Fallback if older float-style Vmca
+                vmca_value = vmca
+
+            if isinstance(vmca_value, (int, float)):
+                vmca_converted = convert_display_airspeed(vmca_value, unit)
+
+                fig.add_trace(go.Scatter(
+                    x=[vmca_converted, vmca_converted],
+                    y=[0, y_max],
+                    mode="lines",
+                    name=f"Vmca ({int(vmca_converted)} {unit})",
+                    line=dict(color="red", width=2, dash="dash"),
+                    hoverinfo="skip"
+                ))
+
+                fig.add_annotation(
+                    x=vmca_converted,
+                    y=y_max * 0.90,
+                    text="Vmca",
+                    showarrow=False,
+                    font=dict(size=10, color="red"),
+                    bgcolor="rgba(255,255,255,0.8)",
+                    xanchor="center"
+                )
  
     
     # Final layout and return (outside toggle block!)
@@ -2870,6 +2898,7 @@ def get_browser_width(_):
     [
         Output("aircraft-name", "value"),
         Output("aircraft-type", "value"),
+        Output("gear-type", "value"),
         Output("engine-count", "value"),
         Output("wing-area", "value"),
         Output("aspect-ratio", "value"),
@@ -3085,6 +3114,7 @@ def load_aircraft_full(selected_name):
     return (
         selected_name,  # aircraft-name
         ac.get("type"),
+        ac.get("gear_type", "fixed"),
         ac.get("engine_count"),
         ac.get("wing_area"),  # wing-area
         ac.get("aspect_ratio"),  # aspect-ratio
@@ -4006,6 +4036,7 @@ def convert_units_toggle(units,
     State({"type": "clmax-input", "config": "takeoff"}, "value"),
     State({"type": "clmax-input", "config": "landing"}, "value"),
     State("max-altitude", "value"),
+    State("gear-type", "value"),
     prevent_initial_call=True
 )
 def save_aircraft_to_file(
@@ -4014,7 +4045,7 @@ def save_aircraft_to_file(
     units, empty_weight, max_weight, seats, cg_fwd, cg_aft, fuel_capacity, fuel_weight,
     white_btm, white_top, green_btm, green_top, yellow_btm, yellow_top, red,
     t_static, v_max_kts, best_glide, best_glide_ratio, aircraft_type, engine_count, vne, vno, vfe_takeoff, vfe_landing, 
-    clmax_clean, clmax_takeoff, clmax_landing, max_altitude
+    clmax_clean, clmax_takeoff, clmax_landing, max_altitude, gear_type
 ):
     if not name:
         return "❌ Aircraft name is required.", dash.no_update, dash.no_update, dash.no_update
@@ -4111,6 +4142,7 @@ def save_aircraft_to_file(
         ac_dict = {
             "name": name,
             "type": aircraft_type,
+            "gear_type": gear_type,
             "engine_count": engine_count,
             "wing_area": wing_area,
             "aspect_ratio": ar,

@@ -1,6 +1,7 @@
 {
   "name": "Piper PA-30 Twin Comanche",
   "type": "multi_engine",
+  "gear_type": "retractable",
   "engine_count": 2,
   "wing_area": 183.1,
   "aspect_ratio": 7.0,

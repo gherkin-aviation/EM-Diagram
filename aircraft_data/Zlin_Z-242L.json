@@ -1,6 +1,7 @@
 {
   "name": "Zlin Z-242L",
   "type": "single_engine",
+  "gear_type": "fixed",
   "engine_count": 1,
   "wing_area": 135.6,
   "aspect_ratio": 7.3,

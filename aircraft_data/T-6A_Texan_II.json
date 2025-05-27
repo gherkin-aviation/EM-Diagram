@@ -1,6 +1,7 @@
 {
   "name": "T-6A Texan II",
   "type": "single_engine",
+  "gear_type": "retractable",
   "engine_count": 1,
   "wing_area": 173.5,
   "aspect_ratio": 7.3,

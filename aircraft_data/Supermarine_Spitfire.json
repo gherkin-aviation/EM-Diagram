@@ -1,6 +1,7 @@
 {
   "name": "Supermarine Spitfire Mk IX",
   "type": "single_engine",
+  "gear_type": "retractable",
   "engine_count": 1,
   "wing_area": 242.0,
   "aspect_ratio": 5.6,

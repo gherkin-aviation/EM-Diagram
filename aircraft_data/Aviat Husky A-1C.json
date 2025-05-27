@@ -1,6 +1,7 @@
 {
   "name": "Aviat Husky A-1C",
   "type": "single_engine",
+  "gear_type": "fixed",
   "engine_count": 1,
   "wing_area": 170.0,
   "aspect_ratio": 7.0,

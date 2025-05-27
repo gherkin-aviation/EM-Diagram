@@ -1,6 +1,7 @@
 {
   "name": "Beechcraft Bonanza A36",
   "type": "single_engine",
+  "gear_type": "retractable",
   "engine_count": 1,
   "wing_area": 181.0,
   "aspect_ratio": 7.0,

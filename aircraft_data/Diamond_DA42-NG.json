@@ -1,6 +1,7 @@
 {
   "name": "Diamond DA42-NG",
   "type": "multi_engine",
+  "gear_type": "retractable",
   "engine_count": 2,
   "wing_area": 175.0,
   "aspect_ratio": 11.5,

@@ -1,6 +1,7 @@
 {
   "name": "American Champion Scout",
   "type": "single_engine",
+  "gear_type": "fixed",
   "engine_count": 1,
   "wing_area": 180,
   "aspect_ratio": 6.5,

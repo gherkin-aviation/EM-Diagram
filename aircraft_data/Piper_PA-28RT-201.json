@@ -1,6 +1,7 @@
 {
   "name": "Piper PA-28RT-201",
   "type": "single_engine",
+  "gear_type": "retractable",
   "engine_count": 1,
   "wing_area": 170.0,
   "aspect_ratio": 7.0,

@@ -104,6 +104,19 @@ def edit_aircraft_layout():
             className="dropdown"
         )
     ], className="mb-3"),
+    html.Div([
+        html.Label("Landing Gear Type", className="input-label"),
+        dcc.Dropdown(
+            id="gear-type",
+            options=[
+                {"label": "Fixed", "value": "fixed"},
+                {"label": "Retractable", "value": "retractable"}
+            ],
+            value="fixed",
+            className="dropdown",
+            clearable=False
+        )
+    ], style={"marginBottom": "15px"}),
 
     html.Div([
         html.Label("Engine Count", className="input-label"),

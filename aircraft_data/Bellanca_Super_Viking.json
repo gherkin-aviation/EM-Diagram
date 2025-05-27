@@ -1,6 +1,7 @@
 {
   "name": "Bellanca Super Viking",
   "type": "single_engine",
+  "gear_type": "fixed",
   "engine_count": 1,
   "wing_area": 180.0,
   "aspect_ratio": 7.2,

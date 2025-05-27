@@ -1,6 +1,7 @@
 {
   "name": "Beechcraft Musketeer",
   "type": "single_engine",
+  "gear_type": "fixed",
   "engine_count": 1,
   "wing_area": 181.0,
   "aspect_ratio": 6.8,
