@@ -658,6 +658,7 @@ def mobile_layout():
                                 id="prop-condition",
                                 options=[
                                     {"label": "Feathered", "value": "feathered"},
+                                    {"label": "Stationary", "value": "stationary"},
                                     {"label": "Windmilling", "value": "windmilling"}                                    
                                 ],
                                 value="feathered",
