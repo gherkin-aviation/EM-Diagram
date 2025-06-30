@@ -59,6 +59,15 @@ label {
   display: block;
   margin: 0 auto;
 }
+.disclaimer-banner {
+  background-color: #fff3cd;
+  color: #856404;
+  padding: 10px 15px;
+  border: 1px solid #ffeeba;
+  border-radius: 5px;
+  font-size: 14px;
+  font-weight: 500;
+}
 
 /* === Layout Containers === */
 .full-height-container {
@@ -242,5 +251,9 @@ button:hover,
   .green-button {
     width: 100%;
     margin-bottom: 10px;
+  }
+/* Hide this text in browser view, but not in exported PNG */
+  .js-plotly-plot .annotation[data-name="png-only-disclaimer"] {
+  visibility: hidden;
   }
 }

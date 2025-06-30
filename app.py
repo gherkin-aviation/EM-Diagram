@@ -133,6 +133,85 @@ def desktop_layout():
                 ], className="banner-inner")
             ], className="banner-header"),
 
+            # Disclaimer Banner for EM Diagram Page
+            html.Div(
+                "⚠️ This tool visualizes performance data based on public or user-submitted values and is for educational use only. "
+                "It is not FAA-approved and may not reflect actual aircraft capabilities. Always verify against the aircraft's POH/AFM. ⚠️",
+                style={
+                    "backgroundColor": "#fff3cd",
+                    "border": "1px solid #ffeeba",
+                    "padding": "10px 20px",
+                    "fontSize": "13px",
+                    "color": "#856404",
+                    "marginBottom": "10px",
+                    "textAlign": "center",
+                    "fontWeight": "500"
+                }
+            ),
+
+            # Legal Links Row
+            html.Div([
+                html.Div([
+                    html.A("Full Legal Disclaimer", href="#", id="open-disclaimer", style={
+                        "fontSize": "13px",
+                        "textDecoration": "underline",
+                        "color": "#007bff",
+                        "cursor": "pointer"
+                    }),
+                    html.Span(" | ", style={"margin": "0 6px", "color": "#999"}),  # optional separator
+                    html.A("Terms of Use & Privacy Policy", href="#", id="open-terms-policy", style={
+                        "fontSize": "13px",
+                        "textDecoration": "underline",
+                        "color": "#007bff",
+                        "cursor": "pointer"
+                    }),
+                ], style={
+                    "display": "flex",
+                    "justifyContent": "center",
+                    "alignItems": "center",
+                    "gap": "10px",
+                    "margin": "4px 0 0 0",
+                    "padding": "0",
+                    "lineHeight": "1.2"
+                }),
+
+                # Disclaimer Modal
+                dbc.Modal([
+                    dbc.ModalHeader("AeroEdge Disclaimer", close_button=False),
+                    dbc.ModalBody([
+                        html.P("This tool supplements—not replaces—FAA-published documentation.", style={"marginBottom": "8px"}),
+                        html.P("It is intended for educational and reference use only, and has not been approved or endorsed by the Federal Aviation Administration (FAA).", style={"marginBottom": "8px"}),
+                        html.P("While AeroEdge is aligned with FAA safety principles, it is not an official source of operational data. Users must consult certified instructors and approved aircraft documentation when making flight decisions.", style={"marginBottom": "8px"}),
+                        html.P("The data presented may be incomplete, inaccurate, outdated, or derived from public or user-submitted sources. No warranties, express or implied, are made regarding its accuracy, completeness, or fitness for purpose.", style={"marginBottom": "8px"}),
+                        html.P("Instructors and users are encouraged to verify all EM diagram outputs against certified POH/AFM values. This tool is not a substitute for competent flight instruction, or for compliance with applicable regulations, including Airworthiness Directives (ADs), Federal Aviation Regulations (FARs), or Advisory Circulars (ACs).", style={"marginBottom": "8px"}),
+                        html.P("If any information conflicts with the aircraft’s FAA-approved AFM or POH, the official documentation shall govern.", style={"marginBottom": "8px"}),
+                        html.P("AeroEdge disclaims all liability for errors, omissions, injuries, or damages resulting from the use of this application or website. Use of this tool constitutes acceptance of these terms.", style={"marginBottom": "8px"})
+                    ]),
+                    dbc.ModalFooter(
+                        dbc.Button("Close", id="close-disclaimer", className="ms-auto", color="secondary")
+                    )
+                ], id="disclaimer-modal", is_open=False),
+
+                # Terms Modal
+                dbc.Modal([
+                    dbc.ModalHeader("Terms of Use & Privacy Policy", close_button=False),
+                    dbc.ModalBody([
+                        html.H6("Terms of Use", className="mb-2 mt-2"),
+                        html.P("By accessing or using the AeroEdge application and its associated services, you agree to use this tool solely for educational and informational purposes. This tool is not FAA-certified and should not be relied upon for flight planning, aircraft operation, or regulatory compliance.", style={"marginBottom": "8px"}),
+                        html.P("Users must verify all performance data with the aircraft's official Pilot's Operating Handbook (POH) or Aircraft Flight Manual (AFM). Use of AeroEdge is at your own risk. AeroEdge disclaims liability for any direct, indirect, incidental, or consequential damages arising from its use.", style={"marginBottom": "8px"}),
+
+                        html.H6("Privacy Policy", className="mb-2 mt-4"),
+                        html.P("AeroEdge does not collect, store, or share any personally identifiable information (PII). All use of the application is anonymous. Uploaded aircraft files remain local to your device and are not transmitted or stored on any external servers.", style={"marginBottom": "8px"}),
+                        html.P("If you submit feedback through linked forms, that information is governed by the terms of Google Forms. AeroEdge does not sell or distribute any user-submitted information and uses it only to improve functionality and user experience.", style={"marginBottom": "8px"}),
+
+                        html.P("By using this application, you acknowledge and accept these terms.")
+                    ]),
+                    dbc.ModalFooter(
+                        dbc.Button("Close", id="close-terms-policy", className="ms-auto", color="secondary")
+                    )
+                ], id="terms-policy-modal", is_open=False),
+            ]),
+
         # Two-Column Flex Layout: Sidebar + Graph
         html.Div([
             # Sidebar Left
@@ -391,20 +470,34 @@ def desktop_layout():
                         dcc.Download(id="pdf-download")
                     ])
                 ]),
-                # Error Reporting
+                # Error Reporting + Contact AeroEdge (Side-by-side)
                 dbc.Card([
                     dbc.CardBody([
                         html.Div([
                             dbc.Button(
-                                "Report An Issue",
+                                "Report an Issue",
                                 href="https://forms.gle/1xP29PwFze5MHCTZ7",
                                 color="danger",
                                 target="_blank",
-                                className="me-2"
+                                className="me-2",
+                                style={"fontWeight": "bold", "fontSize": "14px", "padding": "6px 12px"}
+                            ),
+                            dbc.Button(
+                                "Contact AeroEdge",
+                                href="https://forms.gle/AqS1uuTgcY6sRHob9",
+                                color="secondary",
+                                target="_blank",
+                                style={"fontWeight": "bold", "fontSize": "14px", "padding": "6px 12px"}
                             )
-                        ], style={"display": "flex", "gap": "10px"})
-                    ])
-                ]),
+                        ], style={
+                            "display": "flex",
+                            "alignItems": "center",
+                            "gap": "10px",
+                            "margin": "0",
+                            "padding": "0"
+                        })
+                    ], style={"padding": "10px"})
+                ], style={"marginTop": "5px", "marginBottom": "5px"}),
             ], xs=12, md=4, className="resizable-sidebar"),
             
 
@@ -428,8 +521,7 @@ def desktop_layout():
                         className="dash-graph"
                     )
                 ], className="graph-panel"),
-                html.Div("© 2025 Nicholas Len, AEROEDGE. All rights reserved."
-                 " For reference and educational purposes only.",
+                html.Div("© 2025 Nicholas Len, AEROEDGE. All rights reserved.",
                  className="footer")
             ], className="graph-column")
         ],className="main-row")
@@ -2637,6 +2729,17 @@ def update_graph(
                 label="Chandelle Ghost"
             )
 
+    fig.add_annotation(
+        text="© 2025 Nicholas Len, AEROEDGE. All rights reserved.<br>Not FAA-approved. For educational and reference use only.",
+        xref="paper", yref="paper",
+        x=0.5, y=-0.15,
+        xanchor="center", yanchor="top",
+        showarrow=False,
+        font=dict(size=9, color="gray"),
+        align="center",
+        name="png-only-disclaimer"
+    )
+
     return fig
 
 import tempfile
@@ -2833,14 +2936,14 @@ def generate_pdf(n_clicks, fig_data, ac_name, engine_name, config, gear, occupan
 
     # ✅ Footer
     fig.add_annotation(
-        text="© 2025 Nicholas Len, AEROEDGE. All rights reserved.",
+        text="© 2025 Nicholas Len, AEROEDGE. All rights reserved.<br>Not FAA-approved. For educational and reference use only.",
         xref="paper", yref="paper",
-        x=1, y=-0.1,
-        xanchor="right", yanchor="bottom",
+        x=0.5, y=-0.15,  # x=0.5 centers it; adjust y to avoid x-axis overlap
+        xanchor="center", yanchor="top",
         showarrow=False,
-        font=dict(size=9, color="gray")
+        font=dict(size=9, color="gray"),
+        align="center"
     )
-
     # ✅ Clean layout margin
     fig.update_layout(margin=dict(t=160, b=80))
 
@@ -4243,6 +4346,33 @@ def load_aircraft_from_upload(contents, filename, current_data):
     except Exception as e:
         print(f"[UPLOAD ERROR]: {e}")
         raise PreventUpdate
+
+@app.callback(
+    Output("disclaimer-modal", "is_open"),
+    Output("terms-policy-modal", "is_open"),
+    Input("open-disclaimer", "n_clicks"),
+    Input("close-disclaimer", "n_clicks"),
+    Input("open-terms-policy", "n_clicks"),
+    Input("close-terms-policy", "n_clicks"),
+    State("disclaimer-modal", "is_open"),
+    State("terms-policy-modal", "is_open"),
+    prevent_initial_call=True
+)
+def toggle_disclaimer_and_terms(open_disc, close_disc, open_terms, close_terms, disc_open, terms_open):
+    ctx_id = ctx.triggered_id
+
+    if ctx_id == "open-disclaimer":
+        return True, False
+    elif ctx_id == "close-disclaimer":
+        return False, terms_open
+    elif ctx_id == "open-terms-policy":
+        return False, True
+    elif ctx_id == "close-terms-policy":
+        return disc_open, False
+
+    raise PreventUpdate
+
+
 
 
 
